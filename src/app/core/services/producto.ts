@@ -1,7 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { CategoriaProducto } from '../models/categoria-producto';
 import { Producto } from '../models/producto';
 
 @Injectable({
@@ -12,10 +11,6 @@ export class ProductoService {
 
   constructor(private http: HttpClient) { }
   
-  getCategorias(): Observable<CategoriaProducto[]> {
-    return this.http.get<CategoriaProducto[]>(`${this.apiUrl}/categorias`);
-  }
-
   getProductos(): Observable<Producto[]> {
     return this.http.get<Producto[]>(`${this.apiUrl}`);
   }
@@ -26,5 +21,9 @@ export class ProductoService {
 
   getProductoById(id: number): Observable<Producto> {
     return this.http.get<Producto>(`${this.apiUrl}/${id}`);
+  }
+
+  getProductosDestacados(): Observable<Producto[]> {
+    return this.http.get<Producto[]>(`${this.apiUrl}/destacados`);
   }
 }

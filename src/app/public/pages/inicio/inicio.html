@@ -1,5 +1,5 @@
 <section class="relative h-[600px] bg-cover bg-center"
-    style="background-image: url('https://images.unsplash.com/photo-1511920170033-f8396924c348?w=1920');">
+    style="background-image: url('../../../../../public/images/hero.webp')">
     <div class="absolute inset-0 bg-black bg-opacity-50"></div>
     <div class="relative z-10 h-full flex items-center justify-center text-center text-white px-4">
         <div class="max-w-3xl">
@@ -20,55 +20,84 @@
 
 <section class="py-12 bg-beige-cream">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div *ngFor="let category of categories" class="text-center">
-                <div
-                    class="w-20 h-20 mx-auto bg-white rounded-full flex items-center justify-center mb-4 shadow-md hover:shadow-lg transition-shadow">
-                    <i [class]="'pi ' + category.icon + ' text-cafe-primary text-3xl'"></i>
-                </div>
-                <h3 class="font-serif text-lg text-cafe-dark">{{ category.name }}</h3>
-            </div>
+        @if (loadingCategorias) {
+        <div class="flex justify-center items-center h-32">
+            <i class="pi pi-spin pi-spinner text-4xl text-cafe-primary"></i>
         </div>
+        } @else {
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+            @for (categoria of categorias; track categoria.idCategoriaProducto) {
+            <div class="text-center cursor-pointer" routerLink="/menu">
+                <h3 class="font-serif text-lg text-cafe-dark">{{ categoria.nombre }}</h3>
+            </div>
+            }
+        </div>
+        }
     </div>
 </section>
 
 <section class="py-16 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 class="text-4xl font-serif font-bold text-center text-cafe-dark mb-4">
-            NUESTROS PRODUCTOS ESPECIALES!
+            NUESTROS PRODUCTOS ESPECIALES
         </h2>
         <div class="w-24 h-1 bg-cafe-primary mx-auto mb-12"></div>
 
-        <p-carousel [value]="featuredProducts" [numVisible]="3" [numScroll]="1" [circular]="true"
-            [autoplayInterval]="3000" [responsiveOptions]="responsiveOptions">
-            <ng-template let-product pTemplate="item">
-                <div class="p-4">
-                    <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-                        <div class="h-64 bg-gray-200 flex items-center justify-center">
-                            <i class="pi pi-image text-6xl text-gray-400"></i>
-                        </div>
-                        <div class="p-6">
-                            <h3 class="text-xl font-serif font-bold mb-2 text-cafe-dark">
-                                {{ product.name }}
-                            </h3>
-                            <p class="text-gray-600 text-sm mb-4">
-                                {{ product.description }}
-                            </p>
+        @if (loadingProductos) {
+        <div class="flex justify-center items-center h-64">
+            <i class="pi pi-spin pi-spinner text-4xl text-cafe-primary"></i>
+        </div>
+        } @else if (productosDestacados.length === 0) {
+        <div class="text-center text-gray-500 py-12">
+            <i class="pi pi-inbox text-6xl mb-4"></i>
+            <p class="text-xl">No hay productos disponibles en este momento</p>
+        </div>
+        } @else {
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            @for (producto of productosDestacados; track producto.idProducto) {
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                <div class="h-64 bg-gray-200 flex items-center justify-center overflow-hidden">
+                    @if (producto.imagenUrl) {
+                    <img [src]="producto.imagenUrl" [alt]="producto.nombre" class="w-full h-full object-cover">
+                    } @else {
+                    <i class="pi pi-image text-6xl text-gray-400"></i>
+                    }
+                </div>
+
+                <div class="p-6">
+                    <h3 class="text-xl font-serif font-bold mb-2 text-cafe-dark">
+                        {{ producto.nombre }}
+                    </h3>
+                    <p class="text-gray-600 text-sm mb-4 line-clamp-2">
+                        {{ producto.descripcion }}
+                    </p>
+
+                    @if (producto.stockActual <= 0) { <span
+                        class="inline-block bg-red-100 text-red-600 text-xs px-2 py-1 rounded mb-2">
+                        Agotado
+                        </span>
+                        } @else if (producto.stockActual <= producto.stockMinimo) { <span
+                            class="inline-block bg-yellow-100 text-yellow-600 text-xs px-2 py-1 rounded mb-2">
+                            Pocas unidades
+                            </span>
+                            }
+
                             <div class="flex justify-between items-center">
                                 <span class="text-2xl font-bold text-cafe-primary">
-                                    S/. {{ product.price }}
+                                    S/. {{ producto.precio }}
                                 </span>
-                                <button
-                                    class="bg-cafe-dark text-white px-4 py-2 rounded-md hover:bg-cafe-brown transition-colors flex items-center gap-2">
+                                <button (click)="agregarAlCarrito(producto)" [disabled]="producto.stockActual <= 0"
+                                    [class.opacity-50]="producto.stockActual <= 0"
+                                    [class.cursor-not-allowed]="producto.stockActual <= 0"
+                                    class="bg-cafe-dark text-white px-4 py-2 rounded-md hover:bg-cafe-brown transition-colors flex items-center gap-2 disabled:hover:bg-cafe-dark">
                                     <i class="pi pi-shopping-cart"></i>
-                                    Agregar
-                                </button>
+                                    {{ producto.stockActual <= 0 ? 'Agotado' : 'Agregar' }} </button>
                             </div>
-                        </div>
-                    </div>
                 </div>
-            </ng-template>
-        </p-carousel>
+            </div>
+            }
+        </div>
+        }
     </div>
 </section>
 
@@ -104,33 +133,30 @@
         </h2>
         <div class="w-24 h-1 bg-cafe-primary mx-auto mb-12"></div>
 
-        <p-carousel [value]="testimonials" [numVisible]="3" [numScroll]="1" [circular]="true" [autoplayInterval]="5000"
-            [responsiveOptions]="responsiveOptions">
-            <ng-template let-testimonial pTemplate="item">
-                <div class="p-4">
-                    <div class="bg-beige-cream rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow">
-                        <div class="flex items-center mb-4">
-                            <div
-                                class="w-12 h-12 bg-cafe-primary rounded-full flex items-center justify-center text-white font-bold mr-4">
-                                {{ testimonial.name.charAt(0) }}
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-cafe-dark">{{ testimonial.name }}</h4>
-                                <p class="text-sm text-gray-600">{{ testimonial.role }}</p>
-                            </div>
-                        </div>
-                        <div class="flex mb-3">
-                            <i *ngFor="let star of [1,2,3,4,5]"
-                                [class]="star <= testimonial.rating ? 'pi pi-star-fill text-yellow-400' : 'pi pi-star text-gray-300'"
-                                class="mr-1"></i>
-                        </div>
-                        <p class="text-gray-700 text-sm leading-relaxed">
-                            {{ testimonial.comment }}
-                        </p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            @for (testimonial of testimonials; track testimonial.id) {
+            <div class="bg-beige-cream rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow">
+                <div class="flex items-center mb-4">
+                    <div
+                        class="w-12 h-12 bg-cafe-primary rounded-full flex items-center justify-center text-white font-bold mr-4">
+                        {{ testimonial.nombre.charAt(0) }}
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-cafe-dark">{{ testimonial.nombre }}</h4>
                     </div>
                 </div>
-            </ng-template>
-        </p-carousel>
+                <div class="flex mb-3">
+                    @for (star of [1,2,3,4,5]; track star) {
+                    <i [class]="star <= testimonial.calificacion ? 'pi pi-star-fill text-yellow-400' : 'pi pi-star text-gray-300'"
+                        class="mr-1"></i>
+                    }
+                </div>
+                <p class="text-gray-700 text-sm leading-relaxed">
+                    {{ testimonial.comentario }}
+                </p>
+            </div>
+            }
+        </div>
     </div>
 </section>
 
