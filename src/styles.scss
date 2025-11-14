@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+@import 'primeng/resources/themes/lara-light-brown/theme.css';
+@import 'primeng/resources/primeng.css';
+@import 'primeicons/primeicons.css';
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Mona+Sans:ital,wght@0,200..900;1,200..900&display=swap');
 
 * {
@@ -23,6 +27,31 @@ body {
 
 h1,
 h2,
-h3 {
+h3,
+h4,
+h5,
+h6 {
   font-family: 'Playfair Display', serif;
+}
+
+:root {
+  --cafe-primary: #6f4e37;
+  --cafe-brown: #8b4513;
+  --cafe-dark: #3e2723;
+  --beige-light: #f5e6d3;
+  --beige-cream: #fff8e7;
+}
+
+.p-button {
+  background-color: var(--cafe-primary) !important;
+  border-color: var(--cafe-primary) !important;
+
+  &:hover {
+    background-color: var(--cafe-dark) !important;
+    border-color: var(--cafe-dark) !important;
+  }
+}
+
+.p-component {
+  font-family: 'Inter', sans-serif;
 }

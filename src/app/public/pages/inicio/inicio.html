@@ -1,1 +1,188 @@
-<p>inicio works!</p>
+<section class="relative h-[600px] bg-cover bg-center"
+    style="background-image: url('https://images.unsplash.com/photo-1511920170033-f8396924c348?w=1920');">
+    <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+    <div class="relative z-10 h-full flex items-center justify-center text-center text-white px-4">
+        <div class="max-w-3xl">
+            <h2 class="text-sm uppercase tracking-widest mb-4">¡Bienvenidos!</h2>
+            <h1 class="text-5xl md:text-6xl font-serif font-bold mb-6">
+                Nos late que te encantará!
+            </h1>
+            <p class="text-lg mb-8 max-w-2xl mx-auto">
+                Aquí el café se disfruta sin prisa, con aroma a momentos que valen la pena
+            </p>
+            <button routerLink="/menu"
+                class="bg-white text-cafe-dark px-8 py-3 rounded-md font-semibold hover:bg-beige-light transition-colors">
+                Haz tu pedido
+            </button>
+        </div>
+    </div>
+</section>
+
+<section class="py-12 bg-beige-cream">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div *ngFor="let category of categories" class="text-center">
+                <div
+                    class="w-20 h-20 mx-auto bg-white rounded-full flex items-center justify-center mb-4 shadow-md hover:shadow-lg transition-shadow">
+                    <i [class]="'pi ' + category.icon + ' text-cafe-primary text-3xl'"></i>
+                </div>
+                <h3 class="font-serif text-lg text-cafe-dark">{{ category.name }}</h3>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-16 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-4xl font-serif font-bold text-center text-cafe-dark mb-4">
+            NUESTROS PRODUCTOS ESPECIALES!
+        </h2>
+        <div class="w-24 h-1 bg-cafe-primary mx-auto mb-12"></div>
+
+        <p-carousel [value]="featuredProducts" [numVisible]="3" [numScroll]="1" [circular]="true"
+            [autoplayInterval]="3000" [responsiveOptions]="responsiveOptions">
+            <ng-template let-product pTemplate="item">
+                <div class="p-4">
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                        <div class="h-64 bg-gray-200 flex items-center justify-center">
+                            <i class="pi pi-image text-6xl text-gray-400"></i>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-serif font-bold mb-2 text-cafe-dark">
+                                {{ product.name }}
+                            </h3>
+                            <p class="text-gray-600 text-sm mb-4">
+                                {{ product.description }}
+                            </p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-2xl font-bold text-cafe-primary">
+                                    S/. {{ product.price }}
+                                </span>
+                                <button
+                                    class="bg-cafe-dark text-white px-4 py-2 rounded-md hover:bg-cafe-brown transition-colors flex items-center gap-2">
+                                    <i class="pi pi-shopping-cart"></i>
+                                    Agregar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </ng-template>
+        </p-carousel>
+    </div>
+</section>
+
+<section class="py-16 bg-beige-cream">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+                <h2 class="text-4xl font-serif font-bold mb-6 text-cafe-dark uppercase">
+                    Nuestra Esencia
+                </h2>
+                <p class="text-gray-700 mb-6 leading-relaxed">
+                    Cada taza cuenta una historia, desde 2023, hemos sido el refugio perfecto
+                    para quienes buscan más que un café. Aquí encontrarás el sabor auténtico,
+                    el ambiente cálido y esa pausa que necesitas en tu día.
+                </p>
+                <button routerLink="/menu"
+                    class="bg-cafe-dark text-white px-8 py-3 rounded-md hover:bg-cafe-brown transition-colors">
+                    Mira Nuestro Menú
+                </button>
+            </div>
+            <div class="relative h-96 rounded-lg overflow-hidden shadow-xl">
+                <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800" alt="Café ambiente"
+                    class="w-full h-full object-cover">
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-16 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-4xl font-serif font-bold text-center text-cafe-dark mb-4 uppercase">
+            Qué dicen de nosotros
+        </h2>
+        <div class="w-24 h-1 bg-cafe-primary mx-auto mb-12"></div>
+
+        <p-carousel [value]="testimonials" [numVisible]="3" [numScroll]="1" [circular]="true" [autoplayInterval]="5000"
+            [responsiveOptions]="responsiveOptions">
+            <ng-template let-testimonial pTemplate="item">
+                <div class="p-4">
+                    <div class="bg-beige-cream rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow">
+                        <div class="flex items-center mb-4">
+                            <div
+                                class="w-12 h-12 bg-cafe-primary rounded-full flex items-center justify-center text-white font-bold mr-4">
+                                {{ testimonial.name.charAt(0) }}
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-cafe-dark">{{ testimonial.name }}</h4>
+                                <p class="text-sm text-gray-600">{{ testimonial.role }}</p>
+                            </div>
+                        </div>
+                        <div class="flex mb-3">
+                            <i *ngFor="let star of [1,2,3,4,5]"
+                                [class]="star <= testimonial.rating ? 'pi pi-star-fill text-yellow-400' : 'pi pi-star text-gray-300'"
+                                class="mr-1"></i>
+                        </div>
+                        <p class="text-gray-700 text-sm leading-relaxed">
+                            {{ testimonial.comment }}
+                        </p>
+                    </div>
+                </div>
+            </ng-template>
+        </p-carousel>
+    </div>
+</section>
+
+<section class="py-16 bg-cafe-dark text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-4xl font-serif font-bold text-center mb-4 uppercase">
+            Encuéntranos
+        </h2>
+        <div class="w-24 h-1 bg-beige-light mx-auto mb-12"></div>
+
+        <div class="grid md:grid-cols-2 gap-12">
+            <div class="h-96 bg-gray-300 rounded-lg overflow-hidden">
+                <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3901.8827!2d-77.0401!3d-11.8789!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTHCsDUyJzQ0LjAiUyA3N8KwMDInMjQuNCJX!5e0!3m2!1sen!2spe!4v1234567890"
+                    width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+            </div>
+
+            <div class="flex flex-col justify-center">
+                <div class="space-y-6">
+                    <div class="flex items-start">
+                        <i class="pi pi-map-marker text-beige-light text-2xl mr-4 mt-1"></i>
+                        <div>
+                            <h3 class="font-bold text-lg mb-2">Dirección</h3>
+                            <p class="text-gray-300">Av. Mariana Condesmarca 808, Carabayllo 15318</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start">
+                        <i class="pi pi-clock text-beige-light text-2xl mr-4 mt-1"></i>
+                        <div>
+                            <h3 class="font-bold text-lg mb-2">Horarios de Atención</h3>
+                            <p class="text-gray-300">8:00 a.m - 11:00 p.m</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start">
+                        <i class="pi pi-whatsapp text-beige-light text-2xl mr-4 mt-1"></i>
+                        <div>
+                            <h3 class="font-bold text-lg mb-2">WhatsApp</h3>
+                            <p class="text-gray-300">936 407 517</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start">
+                        <i class="pi pi-envelope text-beige-light text-2xl mr-4 mt-1"></i>
+                        <div>
+                            <h3 class="font-bold text-lg mb-2">Correo</h3>
+                            <p class="text-gray-300">melateacafe@gmail.com</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
