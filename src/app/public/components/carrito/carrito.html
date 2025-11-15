@@ -1,0 +1,69 @@
+<p-drawer [(visible)]="visible" (onHide)="onHide()" position="right" class="carrito-drawer">
+
+    <ng-template pTemplate="header">
+        <h2 class="text-2xl font-serif font-bold text-cafe-dark">Mi Carrito</h2>
+    </ng-template>
+
+    <ng-template pTemplate="content">
+        @if (carritoService.items$ | async; as items) {
+        @if (items.length === 0) {
+        <div class="flex flex-col items-center justify-center h-full text-gray-500">
+            <i class="pi pi-shopping-cart text-6xl mb-4"></i>
+            <p class="text-lg">Tu carrito está vacío</p>
+            <p-button label="Ver productos" styleClass="p-button-link mt-4" routerLink="/menu" (onClick)="onHide()" />
+        </div>
+
+        } @else {
+        <div class="flex flex-col h-full">
+            <div class="flex-grow overflow-y-auto">
+                @for (item of items; track item.producto.idProducto) {
+                <div class="flex items-center gap-4 py-4 border-b">
+                    <img [src]="item.producto.imagenUrl" [alt]="item.producto.nombre"
+                        class="w-20 h-20 object-cover rounded-md" />
+                    <div class="flex-grow">
+                        <h4 class="font-bold text-cafe-dark">
+                            {{ item.producto.nombre }}
+                        </h4>
+                        <p class="text-cafe-primary font-semibold">
+                            S/. {{ item.producto.precio | number: '1.2-2' }}
+                        </p>
+                        <div class="flex items-center gap-2 mt-2">
+                            <button (click)="disminuirCantidad(item.producto.idProducto, item.cantidad)"
+                                class="w-6 h-6 rounded-full bg-gray-200 hover:bg-gray-300">
+                                -
+                            </button>
+                            <span class="font-bold w-6 text-center">{{ item.cantidad }}</span>
+                            <button (click)="aumentarCantidad(item.producto.idProducto, item.cantidad)"
+                                class="w-6 h-6 rounded-full bg-gray-200 hover:bg-gray-300">
+                                +
+                            </button>
+                        </div>
+                    </div>
+                    <button (click)="eliminarProducto(item.producto.idProducto)"
+                        class="text-gray-400 hover:text-red-500">
+                        <i class="pi pi-trash"></i>
+                    </button>
+                </div>
+                }
+            </div>
+
+            <div class="border-t pt-4 mt-4">
+                @if (carritoService.subtotal$ | async; as subtotal) {
+                <div class="flex justify-between items-center text-xl font-bold mb-4">
+                    <span class="text-cafe-dark">Subtotal:</span>
+                    <span class="text-cafe-primary">
+                        S/. {{ subtotal | number: '1.2-2' }}
+                    </span>
+                </div>
+                }
+                <div class="flex flex-col gap-3">
+                    <p-button label="Proceder al Pago" styleClass="p-button-sm p-button-raised w-full" />
+                    <p-button label="Vaciar Carrito" (click)="vaciarCarrito()"
+                        styleClass="p-button-sm p-button-raised p-button-outlined p-button-danger w-full" />
+                </div>
+            </div>
+        </div>
+        }
+        }
+    </ng-template>
+</p-drawer>

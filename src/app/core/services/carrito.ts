@@ -1,91 +1,89 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { Producto } from '../models/producto';
+import { BehaviorSubject, map } from 'rxjs';
+import type { Producto } from '../models/producto';
 
 export interface ItemCarrito {
   producto: Producto;
   cantidad: number;
-  subtotal: number;
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CarritoService {
-  private itemsCarrito: ItemCarrito[] = [];
-  private carritoSubject = new BehaviorSubject<ItemCarrito[]>([]);
-  public carrito$: Observable<ItemCarrito[]> = this.carritoSubject.asObservable();
+  private itemsSubject = new BehaviorSubject<ItemCarrito[]>([]);
+  
+  items$ = this.itemsSubject.asObservable();
+
+  subtotal$ = this.items$.pipe(
+    map((items) =>
+      items.reduce(
+        (acc, item) => acc + item.producto.precio * item.cantidad,
+        0,
+      ),
+    ),
+  );
+
+  cantidadTotal$ = this.items$.pipe(
+    map((items) =>
+      items.reduce((acc, item) => acc + item.cantidad, 0),
+    ),
+  );
 
   constructor() {
     const carritoGuardado = localStorage.getItem('carrito');
     if (carritoGuardado) {
-      this.itemsCarrito = JSON.parse(carritoGuardado);
-      this.carritoSubject.next(this.itemsCarrito);
+      this.itemsSubject.next(JSON.parse(carritoGuardado));
     }
   }
 
-  agregarProducto(producto: Producto, cantidad: number = 1): void {
-    const itemExistente = this.itemsCarrito.find(
-      item => item.producto.idProducto === producto.idProducto
+  agregarProducto(producto: Producto, cantidad: number): void {
+    const itemsActuales = this.itemsSubject.getValue();
+    const itemExistente = itemsActuales.find(
+      (i) => i.producto.idProducto === producto.idProducto,
     );
+
+    let itemsNuevos: ItemCarrito[];
 
     if (itemExistente) {
-      itemExistente.cantidad += cantidad;
-      itemExistente.subtotal = itemExistente.cantidad * itemExistente.producto.precio;
+      itemsNuevos = itemsActuales.map((i) =>
+        i.producto.idProducto === producto.idProducto
+          ? { ...i, cantidad: i.cantidad + cantidad }
+          : i,
+      );
     } else {
-      this.itemsCarrito.push({
-        producto,
-        cantidad,
-        subtotal: cantidad * producto.precio
-      });
+      itemsNuevos = [...itemsActuales, { producto, cantidad }];
     }
 
-    this.actualizarCarrito();
-  }
-
-  eliminarProducto(idProducto: number): void {
-    this.itemsCarrito = this.itemsCarrito.filter(
-      item => item.producto.idProducto !== idProducto
-    );
-
-    this.actualizarCarrito();
+    this.actualizarCarrito(itemsNuevos);
   }
 
   actualizarCantidad(idProducto: number, cantidad: number): void {
-    const item = this.itemsCarrito.find(
-      item => item.producto.idProducto === idProducto
+    const itemsActuales = this.itemsSubject.getValue();
+    let itemsNuevos = itemsActuales.map((i) =>
+      i.producto.idProducto === idProducto ? { ...i, cantidad } : i,
     );
 
-    if (item) {
-      if (cantidad <= 0) {
-        this.eliminarProducto(idProducto);
-      } else {
-        item.cantidad = cantidad;
-        item.subtotal = cantidad * item.producto.precio;
-        this.actualizarCarrito();
-      }
-    }
+    itemsNuevos = itemsNuevos.filter((i) => i.cantidad > 0);
+
+    this.actualizarCarrito(itemsNuevos);
+  }
+
+  eliminarProducto(idProducto: number): void {
+    const itemsActuales = this.itemsSubject.getValue();
+    const itemsNuevos = itemsActuales.filter(
+      (i) => i.producto.idProducto !== idProducto,
+    );
+    this.actualizarCarrito(itemsNuevos);
   }
 
   vaciarCarrito(): void {
-    this.itemsCarrito = [];
-    this.actualizarCarrito();
+    this.actualizarCarrito([]);
   }
 
-  getItems(): ItemCarrito[] {
-    return this.itemsCarrito;
-  }
-
-  getCantidadTotal(): number {
-    return this.itemsCarrito.reduce((total, item) => total * item.cantidad, 0);
-  }
-
-  getTotal(): number {
-    return this.itemsCarrito.reduce((total, item) => total * item.subtotal, 0);
-  }
-
-  private actualizarCarrito(): void {
-    this.carritoSubject.next(this.itemsCarrito);
-    localStorage.setItem('carrito', JSON.stringify(this.itemsCarrito));
+  private actualizarCarrito(items: ItemCarrito[]): void {
+    this.itemsSubject.next(items);
+    localStorage.setItem('carrito', JSON.stringify(items));
+    console.log('Carrito actualizado:', items);
   }
 }

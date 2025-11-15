@@ -61,3 +61,22 @@ h6 {
   position: relative;
   z-index: 1;
 }
+
+.carrito-drawer {
+  width: 400px;
+
+  background-color: #ffffff;
+
+  @media (max-width: 768px) {
+    width: 90%;
+  }
+
+  .p-drawer-header {
+    border-bottom: 1px solid #e5e7eb;
+    padding: 1.25rem;
+  }
+
+  .p-drawer-content {
+    padding: 1rem 1.25rem;
+  }
+}
