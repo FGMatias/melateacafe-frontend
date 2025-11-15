@@ -1,10 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CategoriaProducto } from '../../../core/models/categoria-producto';
 import { Producto } from '../../../core/models/producto';
 import { CarritoService } from '../../../core/services/carrito';
-import { CategoriaProductoService } from '../../../core/services/categoria-producto';
 import { ProductoService } from '../../../core/services/producto';
 
 interface Testimonial {
@@ -21,7 +19,6 @@ interface Testimonial {
   styleUrl: './inicio.scss',
 })
 export class Inicio implements OnInit {
-  categorias: CategoriaProducto[] = [];
   productosDestacados: Producto[] = [];
 
   loadingCategorias = true;
@@ -50,28 +47,11 @@ export class Inicio implements OnInit {
 
   constructor(
     private productoService: ProductoService,
-    private categoriaProductoService: CategoriaProductoService,
     private carritoService: CarritoService
   ) {}
 
   ngOnInit(): void {
-    this.cargarCategorias();
     this.cargarProductosDestacados();
-  }
-
-  cargarCategorias(): void {
-    this.loadingCategorias = true;
-    this.categoriaProductoService.getCategorias().subscribe({
-      next: (categorias) => {
-        this.categorias = categorias.filter(c => c.estado);
-        this.loadingCategorias = false;
-        console.log('Categorias cargadas: ', this.categorias);
-      },
-      error: (error) => {
-        console.log('Error al cargar las categorias:', error);
-        this.loadingCategorias = false;
-      }
-    })
   }
 
   cargarProductosDestacados(): void {

@@ -1,43 +1,78 @@
-<section class="relative h-[760px] bg-cover bg-center" style="background-image: url('images/hero2.webp')">
+<section class="relative h-screen min-h-[700px] bg-cover bg-center" style="background-image: url('images/hero.webp')">
     <div class="absolute inset-0 bg-black bg-opacity-50"></div>
-    <div class="relative z-10 h-full flex items-center justify-center text-center text-white px-4">
-        <div class="max-w-3xl">
-            <h2 class="text-sm uppercase tracking-widest mb-4">¡Bienvenidos!</h2>
-            <h1 class="text-5xl md:text-6xl font-serif font-bold mb-6">
-                Nos late que te encantará!
-            </h1>
-            <p class="text-lg mb-8 max-w-2xl mx-auto">
-                Aquí el café se disfruta sin prisa, con aroma a momentos que valen la pena
-            </p>
-            <button routerLink="/menu"
-                class="bg-white text-cafe-dark px-8 py-3 rounded-md font-semibold hover:bg-beige-light transition-colors">
-                Haz tu pedido
-            </button>
+
+    <div class="relative z-10 h-full">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full items-center">
+
+                <div class="text-white space-y-6 pl-10">
+                    <p class="text-sm uppercase tracking-widest">¡Bienvenidos!</p>
+                    <h1 class="text-5xl lg:text-6xl xl:text-7xl font-serif font-bold leading-tight">
+                        Nos late que te encantará!
+                    </h1>
+                    <p class="text-lg lg:text-xl max-w-lg">
+                        Aquí el café se disfruta sin prisa, con aroma a momentos que valen la pena
+                    </p>
+                    <div class="pt-4">
+                        <button routerLink="/menu"
+                            class="bg-white text-cafe-dark px-8 py-4 rounded-md font-semibold text-lg hover:bg-beige-light transition-all duration-300 hover:scale-105">
+                            Haz tu pedido
+                        </button>
+                    </div>
+                </div>
+
+                <div class="hidden lg:block"></div>
+
+            </div>
         </div>
     </div>
 </section>
 
 <section class="py-12 bg-beige-cream">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        @if (loadingCategorias) {
-        <div class="flex justify-center items-center h-32">
-            <i class="pi pi-spin pi-spinner text-4xl text-cafe-primary"></i>
-        </div>
-        } @else {
         <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-            @for (categoria of categorias; track categoria.idCategoriaProducto) {
-            <div class="text-center cursor-pointer" routerLink="/menu">
-                <h3 class="font-serif text-lg text-cafe-dark">{{ categoria.nombre }}</h3>
+            <div class="text-center">
+                <div class="w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+                    <img src="images/cafe.svg" alt="Café" class="w-full h-full object-contain">
+                </div>
+                <h3 class="font-sans text-lg text-cafe-brown font-medium">
+                    Café
+                </h3>
             </div>
-            }
+
+            <div class="text-center">
+                <div class="w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+                    <img src="images/milshake.svg" alt="Milkshake" class="w-full h-full object-contain">
+                </div>
+                <h3 class="font-sans text-lg text-cafe-brown font-medium">
+                    Milkshake
+                </h3>
+            </div>
+
+            <div class="text-center">
+                <div class="w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+                    <img src="images/hamburgesa.svg" alt="Hamburguesa" class="w-full h-full object-contain">
+                </div>
+                <h3 class="font-sans text-lg text-cafe-brown font-medium">
+                    Hamburguesa
+                </h3>
+            </div>
+
+            <div class="text-center">
+                <div class="w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+                    <img src="images/torta.svg" alt="Postres" class="w-full h-full object-contain">
+                </div>
+                <h3 class="font-sans text-lg text-cafe-brown font-medium">
+                    Postres
+                </h3>
+            </div>
         </div>
-        }
     </div>
 </section>
 
 <section class="py-16 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 class="text-4xl font-serif font-bold text-center text-cafe-dark mb-4">
+        <h2 class="text-4xl font-serif font-bold text-center text-cafe-dark mb-4 uppercase">
             NUESTROS PRODUCTOS ESPECIALES
         </h2>
         <div class="w-24 h-1 bg-cafe-primary mx-auto mb-12"></div>
@@ -54,17 +89,19 @@
         } @else {
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             @for (producto of productosDestacados; track producto.idProducto) {
-            <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+            <div
+                class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                 <div class="h-64 bg-gray-200 flex items-center justify-center overflow-hidden">
                     @if (producto.imagenUrl) {
-                    <img [src]="producto.imagenUrl" [alt]="producto.nombre" class="w-full h-full object-cover">
+                    <img [src]="producto.imagenUrl" [alt]="producto.nombre"
+                        class="w-full h-full object-cover hover:scale-110 transition-transform duration-300">
                     } @else {
                     <i class="pi pi-image text-6xl text-gray-400"></i>
                     }
                 </div>
 
                 <div class="p-6">
-                    <h3 class="text-xl font-serif font-bold mb-2 text-cafe-dark">
+                    <h3 class="text-xl font-sans font-bold mb-2 text-cafe-dark">
                         {{ producto.nombre }}
                     </h3>
                     <p class="text-gray-600 text-sm mb-4 line-clamp-2">
@@ -81,9 +118,9 @@
                             </span>
                             }
 
-                            <div class="flex justify-between items-center">
+                            <div class="flex justify-between items-center mt-4">
                                 <span class="text-2xl font-bold text-cafe-primary">
-                                    S/. {{ producto.precio }}
+                                    S/. {{ producto.precio.toFixed(2) }}
                                 </span>
                                 <button (click)="agregarAlCarrito(producto)" [disabled]="producto.stockActual <= 0"
                                     [class.opacity-50]="producto.stockActual <= 0"
@@ -107,13 +144,13 @@
                 <h2 class="text-4xl font-serif font-bold mb-6 text-cafe-dark uppercase">
                     Nuestra Esencia
                 </h2>
-                <p class="text-gray-700 mb-6 leading-relaxed">
+                <p class="text-gray-700 mb-6 leading-relaxed text-lg">
                     Cada taza cuenta una historia, desde 2023, hemos sido el refugio perfecto
                     para quienes buscan más que un café. Aquí encontrarás el sabor auténtico,
                     el ambiente cálido y esa pausa que necesitas en tu día.
                 </p>
                 <button routerLink="/menu"
-                    class="bg-cafe-dark text-white px-8 py-3 rounded-md hover:bg-cafe-brown transition-colors">
+                    class="bg-cafe-dark text-white px-8 py-3 rounded-md hover:bg-cafe-brown transition-all duration-300 hover:scale-105">
                     Mira Nuestro Menú
                 </button>
             </div>
@@ -134,14 +171,14 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             @for (testimonial of testimonials; track testimonial.id) {
-            <div class="bg-beige-cream rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow">
+            <div class="bg-gray-light/40 font-sans rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow">
                 <div class="flex items-center mb-4">
                     <div
-                        class="w-12 h-12 bg-cafe-primary rounded-full flex items-center justify-center text-white font-bold mr-4">
+                        class="w-12 h-12 bg-cafe-primary rounded-full flex items-center justify-center text-white font-bold text-xl mr-4">
                         {{ testimonial.nombre.charAt(0) }}
                     </div>
                     <div>
-                        <h4 class="font-bold text-cafe-dark">{{ testimonial.nombre }}</h4>
+                        <h4 class="font-sans font-bold text-cafe-dark">{{ testimonial.nombre }}</h4>
                     </div>
                 </div>
                 <div class="flex mb-3">
@@ -159,12 +196,12 @@
     </div>
 </section>
 
-<section class="py-16 bg-cafe-dark text-white">
+<section class="py-16 bg-beige-cream text-cafe-dark">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 class="text-4xl font-serif font-bold text-center mb-4 uppercase">
             Encuéntranos
         </h2>
-        <div class="w-24 h-1 bg-beige-light mx-auto mb-12"></div>
+        <div class="w-24 h-1 bg-cafe-primary mx-auto mb-12"></div>
 
         <div class="grid md:grid-cols-2 gap-12">
             <div class="h-96 bg-gray-300 rounded-lg overflow-hidden">
@@ -176,34 +213,34 @@
             <div class="flex flex-col justify-center">
                 <div class="space-y-6">
                     <div class="flex items-start">
-                        <i class="pi pi-map-marker text-beige-light text-2xl mr-4 mt-1"></i>
+                        <i class="pi pi-map-marker text-cafe-primary text-2xl mr-4 mt-1"></i>
                         <div>
                             <h3 class="font-bold text-lg mb-2">Dirección</h3>
-                            <p class="text-gray-300">Av. Mariana Condesmarca 808, Carabayllo 15318</p>
+                            <p class="text-gray-700">Av. Mariana Condesmarca 808, Carabayllo 15318</p>
                         </div>
                     </div>
 
                     <div class="flex items-start">
-                        <i class="pi pi-clock text-beige-light text-2xl mr-4 mt-1"></i>
+                        <i class="pi pi-clock text-cafe-primary text-2xl mr-4 mt-1"></i>
                         <div>
                             <h3 class="font-bold text-lg mb-2">Horarios de Atención</h3>
-                            <p class="text-gray-300">8:00 a.m - 11:00 p.m</p>
+                            <p class="text-gray-700">8:00 a.m - 11:00 p.m</p>
                         </div>
                     </div>
 
                     <div class="flex items-start">
-                        <i class="pi pi-whatsapp text-beige-light text-2xl mr-4 mt-1"></i>
+                        <i class="pi pi-whatsapp text-cafe-primary text-2xl mr-4 mt-1"></i>
                         <div>
                             <h3 class="font-bold text-lg mb-2">WhatsApp</h3>
-                            <p class="text-gray-300">936 407 517</p>
+                            <p class="text-gray-700">936 407 517</p>
                         </div>
                     </div>
 
                     <div class="flex items-start">
-                        <i class="pi pi-envelope text-beige-light text-2xl mr-4 mt-1"></i>
+                        <i class="pi pi-envelope text-cafe-primary text-2xl mr-4 mt-1"></i>
                         <div>
                             <h3 class="font-bold text-lg mb-2">Correo</h3>
-                            <p class="text-gray-300">melateacafe@gmail.com</p>
+                            <p class="text-gray-700">melateacafe&#64;gmail.com</p>
                         </div>
                     </div>
                 </div>

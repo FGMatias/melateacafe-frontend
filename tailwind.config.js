@@ -15,6 +15,9 @@ module.exports = {
           light: '#f5e6d3',
           cream: '#fff8e7',
         },
+        gray: {
+          light: '#E2D9C8'
+        }
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],

@@ -1,84 +1,78 @@
 <div class="min-h-screen flex flex-col">
-    <nav class="bg-cafe-dark text-white shadow-lg sticky top-0 z-50">
+    <nav class="fixed top-0 left-0 right-0 z-50 text-white transition-all duration-300"
+        [ngClass]="isScrolled ? 'bg-cafe-dark shadow-lg' : 'bg-transparent'">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
+            <div class="flex justify-between items-center h-20">
                 <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-beige-light rounded-full flex items-center justify-center">
-                        <i class="pi pi-coffee text-cafe-primary text-xl"></i>
-                    </div>
-                    <a routerLink="/inicio" class="text-xl font-serif font-bold">
-                        Me Late a Café
+                    <a class="w-10 h-10 rounded-full flex items-center justify-center" routerLink="/inicio">
+                        <img src="images/logo.webp">
                     </a>
                 </div>
 
                 <div class="hidden md:flex items-center space-x-8">
                     <a routerLink="/inicio" routerLinkActive="border-b-2 border-beige-light"
-                        class="hover:text-beige-light transition-colors py-2">
+                        [routerLinkActiveOptions]="{exact: true}" class="hover:text-beige-light transition-colors py-2">
                         INICIO
-                    </a>
-                    <a routerLink="/nosotros" routerLinkActive="border-b-2 border-beige-light"
-                        class="hover:text-beige-light transition-colors py-2">
-                        NOSOTROS
                     </a>
                     <a routerLink="/menu" routerLinkActive="border-b-2 border-beige-light"
                         class="hover:text-beige-light transition-colors py-2">
                         MENÚ
                     </a>
-                    <a routerLink="/ubicacion" routerLinkActive="border-b-2 border-beige-light"
+                    <a routerLink="/reserva" routerLinkActive="border-b-2 border-beige-light"
                         class="hover:text-beige-light transition-colors py-2">
-                        UBICACIÓN
+                        RESERVA
                     </a>
                 </div>
 
                 <div class="hidden md:block">
-                    <button class="relative p-2 hover:bg-cafe-brown rounded-full transition-colors">
+                    <button routerLink="/carrito" class="relative p-2 hover:bg-white/10 rounded-full transition-colors">
                         <i class="pi pi-shopping-cart text-xl"></i>
+                        @if (cantidadCarrito > 0) {
                         <span
-                            class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                            0
+                            class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                            {{ cantidadCarrito }}
                         </span>
+                        }
                     </button>
                 </div>
 
-                <button (click)="toggleMenu()" class="md:hidden p-2 rounded-md hover:bg-cafe-brown">
+                <button (click)="toggleMenu()" class="md:hidden p-2 rounded-md hover:bg-white/10 transition-colors">
                     <i [class]="menuOpen ? 'pi pi-times' : 'pi pi-bars'" class="text-xl"></i>
                 </button>
             </div>
         </div>
 
-        <div [class.hidden]="!menuOpen" class="md:hidden bg-cafe-brown">
+        <div [class.hidden]="!menuOpen" class="md:hidden bg-cafe-dark/95 backdrop-blur-sm">
             <div class="px-2 pt-2 pb-3 space-y-1">
-                <a routerLink="/inicio" routerLinkActive="bg-cafe-dark" (click)="toggleMenu()"
-                    class="block px-3 py-2 rounded-md hover:bg-cafe-dark transition-colors">
+                <a routerLink="/inicio" routerLinkActive="bg-cafe-brown" (click)="toggleMenu()"
+                    class="block px-3 py-2 rounded-md hover:bg-cafe-brown transition-colors">
                     INICIO
                 </a>
-                <a routerLink="/nosotros" routerLinkActive="bg-cafe-dark" (click)="toggleMenu()"
-                    class="block px-3 py-2 rounded-md hover:bg-cafe-dark transition-colors">
-                    NOSOTROS
-                </a>
-                <a routerLink="/menu" routerLinkActive="bg-cafe-dark" (click)="toggleMenu()"
-                    class="block px-3 py-2 rounded-md hover:bg-cafe-dark transition-colors">
+                <a routerLink="/menu" routerLinkActive="bg-cafe-brown" (click)="toggleMenu()"
+                    class="block px-3 py-2 rounded-md hover:bg-cafe-brown transition-colors">
                     MENÚ
                 </a>
-                <a routerLink="/ubicacion" routerLinkActive="bg-cafe-dark" (click)="toggleMenu()"
-                    class="block px-3 py-2 rounded-md hover:bg-cafe-dark transition-colors">
-                    UBICACIÓN
+                <a routerLink="/reserva" routerLinkActive="bg-cafe-brown" (click)="toggleMenu()"
+                    class="block px-3 py-2 rounded-md hover:bg-cafe-brown transition-colors">
+                    RESERVA
                 </a>
                 <div class="border-t border-cafe-primary pt-2">
-                    <button
-                        class="w-full text-left px-3 py-2 rounded-md hover:bg-cafe-dark transition-colors flex items-center justify-between">
+                    <button routerLink="/carrito" (click)="toggleMenu()"
+                        class="w-full text-left px-3 py-2 rounded-md hover:bg-cafe-brown transition-colors flex items-center justify-between">
                         <span>Carrito</span>
+                        @if (cantidadCarrito > 0) {
                         <span
-                            class="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                            0
+                            class="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                            {{ cantidadCarrito }}
                         </span>
+                        }
                     </button>
                 </div>
             </div>
         </div>
     </nav>
 
-    <main class="flex-1">
+    <main class="flex-1 pt-20 md:pt-0">
         <router-outlet></router-outlet>
     </main>
 
@@ -87,8 +81,8 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div>
                     <div class="flex items-center space-x-3 mb-4">
-                        <div class="w-10 h-10 bg-beige-light rounded-full flex items-center justify-center">
-                            <i class="pi pi-coffee text-cafe-primary text-xl"></i>
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center">
+                            <img src="images/logo.webp">
                         </div>
                         <span class="text-xl font-serif font-bold">ME LATE A CAFÉ</span>
                     </div>
@@ -103,7 +97,7 @@
                         <p>Dirección: Av. Mariana Condesmarca 808, Carabayllo 15318</p>
                         <p>Horarios de Atención: 8:00 a.m - 11:00 p.m</p>
                         <p>WhatsApp: 936 407 517</p>
-                        <p>Correo: melateacafe@gmail.com</p>
+                        <p>Correo: melateacafe&#64;gmail.com</p>
                     </div>
                 </div>
 
