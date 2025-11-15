@@ -9,7 +9,7 @@ module.exports = {
         cafe: {
           primary: '#6f4e37',
           brown: '#8b4513',
-          dark: '3e2723',
+          dark: '#3e2723',
         },
         beige: {
           light: '#f5e6d3',
@@ -24,4 +24,3 @@ module.exports = {
   },
   plugins: [],
 }
-

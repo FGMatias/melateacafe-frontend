@@ -61,12 +61,32 @@ export class Inicio implements OnInit {
 
   cargarCategorias(): void {
     this.loadingCategorias = true;
-    this.categoriaProductoService.getCategorias();
+    this.categoriaProductoService.getCategorias().subscribe({
+      next: (categorias) => {
+        this.categorias = categorias.filter(c => c.estado);
+        this.loadingCategorias = false;
+        console.log('Categorias cargadas: ', this.categorias);
+      },
+      error: (error) => {
+        console.log('Error al cargar las categorias:', error);
+        this.loadingCategorias = false;
+      }
+    })
   }
 
   cargarProductosDestacados(): void {
     this.loadingProductos = true;
-    this.productoService.getProductosDestacados();
+    this.productoService.getProductosDestacados().subscribe({
+      next: (productos) => {
+        this.productosDestacados = productos.filter(p => p.estado);
+        this.loadingProductos = false;
+        console.log('Productos destacados cargados: ', this.productosDestacados);
+      },
+      error: (error) => {
+        console.log('Error al cargar los productos: ', error);
+        this.loadingProductos = false;
+      }
+    })
   }
 
   agregarAlCarrito(producto: Producto): void {
