@@ -1,69 +1,83 @@
-<p-drawer [(visible)]="visible" (onHide)="onHide()" position="right" class="carrito-drawer">
+<p-drawer [(visible)]="visible" (onHide)="onHide()" position="right" [modal]="true" [closable]="false"
+    styleClass="carrito-drawer" [style]="{'width': '420px'}">
 
     <ng-template pTemplate="header">
-        <h2 class="text-2xl font-serif font-bold text-cafe-dark">Mi Carrito</h2>
+        <div class="flex items-center gap-3">
+            <i class="pi pi-shopping-cart text-xl text-cafe-dark"></i>
+            <h2 class="text-xl font-serif font-bold text-cafe-dark m-0">Mi Carrito</h2>
+        </div>
     </ng-template>
 
     <ng-template pTemplate="content">
-        @if (carritoService.items$ | async; as items) {
-        @if (items.length === 0) {
-        <div class="flex flex-col items-center justify-center h-full text-gray-500">
-            <i class="pi pi-shopping-cart text-6xl mb-4"></i>
-            <p class="text-lg">Tu carrito está vacío</p>
-            <p-button label="Ver productos" styleClass="p-button-link mt-4" routerLink="/menu" (onClick)="onHide()" />
-        </div>
-
-        } @else {
-        <div class="flex flex-col h-full">
-            <div class="flex-grow overflow-y-auto">
+        <div class="flex flex-col h-full bg-white">
+            @if (carritoService.items$ | async; as items) {
+            @if (items.length === 0) {
+            <div class="flex flex-col items-center justify-center h-full px-8 py-12 text-center">
+                <i class="pi pi-shopping-cart text-6xl text-gray-300 mb-6"></i>
+                <p class="text-lg font-semibold text-gray-700 m-2">Tu carrito está vacío</p>
+                <p class="text-sm text-gray-500 mb-6">Agrega productos para continuar</p>
+                <p-button label="Ver Menú" icon="pi pi-arrow-right" styleClass="p-button-outlined" routerLink="/menu"
+                    (onClick)="onHide()">
+                </p-button>
+            </div>
+            } @else {
+            <div class="flex-1 overflow-y-auto px-6 py-4">
                 @for (item of items; track item.producto.idProducto) {
-                <div class="flex items-center gap-4 py-4 border-b">
+                <div class="flex items-center gap-4 py-4 border-b border-gray-100 last:border-0">
                     <img [src]="item.producto.imagenUrl" [alt]="item.producto.nombre"
-                        class="w-20 h-20 object-cover rounded-md" />
-                    <div class="flex-grow">
-                        <h4 class="font-bold text-cafe-dark">
+                        class="w-[70px] h-[70px] rounded-lg object-cover flex-shrink-0 shadow-sm">
+
+                    <div class="flex-1 text-center">
+                        <h4 class="text-[15px] font-semibold text-cafe-dark mb-1 leading-tight">
                             {{ item.producto.nombre }}
                         </h4>
-                        <p class="text-cafe-primary font-semibold">
+                        <p class="text-base font-bold text-cafe-primary mb-3">
                             S/. {{ item.producto.precio | number: '1.2-2' }}
                         </p>
-                        <div class="flex items-center gap-2 mt-2">
+
+                        <div class="flex items-center justify-center gap-3">
                             <button (click)="disminuirCantidad(item.producto.idProducto, item.cantidad)"
-                                class="w-6 h-6 rounded-full bg-gray-200 hover:bg-gray-300">
-                                -
+                                class="w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-all hover:scale-110 active:scale-95">
+                                <i class="pi pi-minus text-[10px] text-gray-600"></i>
                             </button>
-                            <span class="font-bold w-6 text-center">{{ item.cantidad }}</span>
+                            <span class="text-[15px] font-bold text-cafe-dark min-w-[24px] text-center">
+                                {{ item.cantidad }}
+                            </span>
                             <button (click)="aumentarCantidad(item.producto.idProducto, item.cantidad)"
-                                class="w-6 h-6 rounded-full bg-gray-200 hover:bg-gray-300">
-                                +
+                                class="w-7 h-7 rounded-full bg-cafe-dark hover:bg-cafe-brown text-white flex items-center justify-center transition-all hover:scale-110 active:scale-95">
+                                <i class="pi pi-plus text-[10px]"></i>
                             </button>
                         </div>
                     </div>
+
                     <button (click)="eliminarProducto(item.producto.idProducto)"
-                        class="text-gray-400 hover:text-red-500">
-                        <i class="pi pi-trash"></i>
+                        class="w-8 h-8 rounded-full hover:bg-red-50 text-gray-400 hover:text-red-500 flex items-center justify-center transition-all hover:scale-110 active:scale-95 flex-shrink-0 self-center">
+                        <i class="pi pi-trash text-sm"></i>
                     </button>
                 </div>
                 }
             </div>
 
-            <div class="border-t pt-4 mt-4">
+            <div class="border-t border-gray-200 bg-gray-50 px-6 py-6 mt-auto">
                 @if (carritoService.subtotal$ | async; as subtotal) {
-                <div class="flex justify-between items-center text-xl font-bold mb-4">
-                    <span class="text-cafe-dark">Subtotal:</span>
-                    <span class="text-cafe-primary">
+                <div class="flex justify-between items-center mb-5 px-1">
+                    <span class="text-base font-medium text-gray-600">Subtotal</span>
+                    <span class="text-2xl font-bold text-cafe-dark">
                         S/. {{ subtotal | number: '1.2-2' }}
                     </span>
                 </div>
-                }
-                <div class="flex flex-col gap-3">
-                    <p-button label="Proceder al Pago" styleClass="p-button-sm p-button-raised w-full" />
-                    <p-button label="Vaciar Carrito" (click)="vaciarCarrito()"
-                        styleClass="p-button-sm p-button-raised p-button-outlined p-button-danger w-full" />
+
+                <div class="flex flex-col gap-3 text-white">
+                    <p-button label="Proceder al Pago" icon="pi pi-credit-card" styleClass="w-full">
+                    </p-button>
+                    <p-button label="Vaciar Carrito" icon="pi pi-trash" (onClick)="vaciarCarrito()"
+                        styleClass="w-full p-button-outlined">
+                    </p-button>
                 </div>
+                }
             </div>
+            }
+            }
         </div>
-        }
-        }
     </ng-template>
 </p-drawer>

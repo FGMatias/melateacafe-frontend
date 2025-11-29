@@ -1,1 +1,191 @@
-<p>menu works!</p>
+<section class="relative h-96 bg-cover bg-center" style="background-image: url('images/hero.webp')">
+    <div class="absolute inset-0 bg-black bg-opacity-60"></div>
+
+    <div class="relative z-10 h-full flex items-center justify-center">
+        <div class="text-center text-white px-4">
+            <h1 class="text-5xl lg:text-6xl font-serif font-bold mb-6">
+                Todo lo que se te antoje, en un solo lugar
+            </h1>
+            <p class="text-lg lg:text-xl max-w-3xl mx-auto">
+                Desde tu espresso matutino hasta la cena favorita. Cafés artesanales,
+                crepas dulces, frappes refrescantes, hamburguesas jugosas y mucho más te
+                esperan
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="py-8 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <aside class="lg:col-span-1">
+                <div class="bg-white rounded-lg border border-gray-200 p-6 sticky top-24">
+                    <h3 class="text-xl font-serif font-bold text-cafe-dark mb-6">
+                        Categorías
+                    </h3>
+
+                    @if (loadingCategorias) {
+                    <div class="flex justify-center py-4">
+                        <i class="pi pi-spin pi-spinner text-2xl text-cafe-primary"></i>
+                    </div>
+                    } @else {
+                    <div class="space-y-3 mb-6">
+                        <label
+                            class="flex items-center cursor-pointer hover:bg-beige-light p-2 rounded transition-colors">
+                            <input type="radio" name="categoria" [checked]="categoriaSeleccionada === null"
+                                (change)="seleccionarCategoria(null)"
+                                class="w-4 h-4 text-cafe-primary focus:ring-cafe-primary" />
+                            <span class="ml-3 text-gray-700">Todos los productos</span>
+                        </label>
+
+                        @for (categoria of categorias; track categoria.idCategoriaProducto) {
+                        <label
+                            class="flex items-center cursor-pointer hover:bg-beige-light p-2 rounded transition-colors">
+                            <input type="radio" name="categoria"
+                                [checked]="categoriaSeleccionada === categoria.idCategoriaProducto"
+                                (change)="seleccionarCategoria(categoria.idCategoriaProducto)"
+                                class="w-4 h-4 text-cafe-primary focus:ring-cafe-primary" />
+                            <span class="ml-3 text-gray-700">{{ categoria.nombre }}</span>
+                        </label>
+                        }
+                    </div>
+                    }
+
+                    <div class="border-t border-gray-200 pt-6">
+                        <h4 class="text-lg font-bold text-cafe-dark mb-4">Precio</h4>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="text-sm text-gray-600 mb-1 block">
+                                    Precio mínimo: S/. {{ precioMinimo }}
+                                </label>
+                                <input type="range" [(ngModel)]="precioMinimo" (change)="aplicarFiltros()" min="0"
+                                    max="100"
+                                    class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-cafe-primary" />
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-600 mb-1 block">
+                                    Precio máximo: S/. {{ precioMaximo }}
+                                </label>
+                                <input type="range" [(ngModel)]="precioMaximo" (change)="aplicarFiltros()" min="0"
+                                    max="100"
+                                    class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-cafe-primary" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <button (click)="limpiarFiltros()"
+                        class="w-full mt-6 bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors font-medium">
+                        Limpiar
+                    </button>
+                </div>
+            </aside>
+
+            <main class="lg:col-span-3">
+                <div class="mb-6">
+                    <div class="flex flex-col sm:flex-row gap-4 items-center justify-between mb-4">
+                        <div class="w-full sm:w-96">
+                            <div class="relative">
+                                <input type="text" [(ngModel)]="busqueda" (keyup.enter)="buscarProductos()"
+                                    placeholder="Buscar"
+                                    class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cafe-primary" />
+                                <button (click)="buscarProductos()"
+                                    class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-cafe-primary">
+                                    <i class="pi pi-search"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="text-gray-600">
+                            {{ productosFiltrados.length }} de {{ productos.length }} Resultados
+                        </div>
+                    </div>
+                </div>
+
+                @if (loadingProductos) {
+                <div class="flex justify-center items-center h-96">
+                    <i class="pi pi-spin pi-spinner text-4xl text-cafe-primary"></i>
+                </div>
+                } @else if (productosPaginados.length === 0) {
+                <div class="text-center py-16">
+                    <i class="pi pi-inbox text-6xl text-gray-400 mb-4"></i>
+                    <p class="text-xl text-gray-600">No se encontraron productos</p>
+                    <button (click)="limpiarFiltros()" class="mt-4 text-cafe-primary hover:text-cafe-dark font-medium">
+                        Limpiar filtros
+                    </button>
+                </div>
+                } @else {
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    @for (producto of productosPaginados; track producto.idProducto) {
+                    <div
+                        class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                        <div class="h-64 bg-gray-200 flex items-center justify-center overflow-hidden">
+                            @if (producto.imagenUrl) {
+                            <img [src]="producto.imagenUrl" [alt]="producto.nombre"
+                                class="w-full h-full object-cover hover:scale-110 transition-transform duration-300" />
+                            } @else {
+                            <i class="pi pi-image text-6xl text-gray-400"></i>
+                            }
+                        </div>
+
+                        <div class="p-6">
+                            <h3 class="text-xl font-sans font-bold mb-2 text-cafe-dark">
+                                {{ producto.nombre }}
+                            </h3>
+                            <p class="text-gray-600 text-sm mb-4 line-clamp-2">
+                                {{ producto.descripcion }}
+                            </p>
+
+                            @if (producto.stockActual <= 0) { <span
+                                class="inline-block bg-red-100 text-red-600 text-xs px-2 py-1 rounded mb-2">
+                                Agotado
+                                </span>
+                                } @else if (producto.stockActual <= producto.stockMinimo) { <span
+                                    class="inline-block bg-yellow-100 text-yellow-600 text-xs px-2 py-1 rounded mb-2">
+                                    Pocas unidades
+                                    </span>
+                                    }
+
+                                    <div class="flex justify-between items-center mt-4">
+                                        <span class="text-2xl font-bold text-cafe-primary">
+                                            S/. {{ producto.precio.toFixed(2) }}
+                                        </span>
+                                        <button (click)="agregarAlCarrito(producto)"
+                                            [disabled]="producto.stockActual <= 0"
+                                            [class.opacity-50]="producto.stockActual <= 0"
+                                            [class.cursor-not-allowed]="producto.stockActual <= 0"
+                                            class="bg-cafe-dark text-white px-4 py-2 rounded-md hover:bg-cafe-brown transition-colors flex items-center gap-2 disabled:hover:bg-cafe-dark">
+                                            <i class="pi pi-shopping-cart"></i>
+                                            {{ producto.stockActual <= 0 ? 'Agotado' : 'Agregar' }} </button>
+                                    </div>
+                        </div>
+                    </div>
+                    }
+                </div>
+
+                @if (totalPaginas > 1) {
+                <div class="mt-8 flex justify-center items-center gap-2">
+                    <button (click)="cambiarPagina(paginaActual - 1)" [disabled]="paginaActual === 1"
+                        class="px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors">
+                        <i class="pi pi-chevron-left"></i>
+                    </button>
+
+                    @for (pagina of paginasVisibles; track pagina) {
+                    <button (click)="cambiarPagina(pagina)" [class.bg-cafe-dark]="pagina === paginaActual"
+                        [class.text-white]="pagina === paginaActual"
+                        [class.hover:bg-cafe-brown]="pagina === paginaActual"
+                        class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 transition-colors min-w-[40px]">
+                        {{ pagina }}
+                    </button>
+                    }
+
+                    <button (click)="cambiarPagina(paginaActual + 1)" [disabled]="paginaActual === totalPaginas"
+                        class="px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors">
+                        <i class="pi pi-chevron-right"></i>
+                    </button>
+                </div>
+                }
+                }
+            </main>
+        </div>
+    </div>
+</section>

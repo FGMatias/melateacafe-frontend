@@ -37,7 +37,11 @@ export class CarritoComponent {
   }
 
   disminuirCantidad(id: number, cantidadActual: number): void {
-    this.carritoService.actualizarCantidad(id, cantidadActual - 1);
+    if (cantidadActual > 1) {
+      this.carritoService.actualizarCantidad(id, cantidadActual - 1);
+    } else {
+      this.eliminarProducto(id);
+    }
   }
 
   vaciarCarrito(): void {
