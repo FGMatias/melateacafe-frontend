@@ -1,5 +1,8 @@
+import { Cargo } from "./cargo";
+
 export interface Trabajador {
   idTrabajador: number;
+  cargo: Cargo;
   nombres: string;
   apellidoPaterno: string;
   apellidoMaterno: string;

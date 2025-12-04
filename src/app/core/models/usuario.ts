@@ -20,6 +20,7 @@ export interface LoginCredentials {
 }
 
 export interface LoginResponse {
+  token: string;
   usuario: Usuario;
-  token?: string;
+  message: string;
 }

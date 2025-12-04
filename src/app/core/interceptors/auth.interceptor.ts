@@ -8,12 +8,14 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
 
   const token = localStorage.getItem('authToken');
+
   if (token) {
     req = req.clone({
       setHeaders: {
         Authorization: `Bearer ${token}`
       }
     });
+    console.log('Token agregado a la petición:', req.url);
   }
 
   return next(req).pipe(

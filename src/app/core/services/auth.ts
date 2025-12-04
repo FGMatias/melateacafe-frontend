@@ -1,15 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, switchMap, throwError } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
 import { LoginResponse, Usuario } from '../models/usuario';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8080/v1';
+  private apiUrl = 'http://localhost:8080/v1/auth';
   private currentUserSubject = new BehaviorSubject<Usuario | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
@@ -18,44 +17,26 @@ export class AuthService {
     private router: Router
   ) {
     const userStorage = localStorage.getItem('currentUser');
-    if (userStorage) {
+    const token = localStorage.getItem('authToken');
+
+    if (userStorage && token) {
       this.currentUserSubject.next(JSON.parse(userStorage));
     }
   }
 
   login(username: string, password: string): Observable<LoginResponse> {
-    return this.http.get<Usuario>(`${this.apiUrl}/usuario/username/${username}`).pipe(
-      switchMap(usuario => {
-        if (!usuario) {
-          return throwError(() => new Error('Usuario no encontrado'));
-        }
-
-        if (!usuario.estado) {
-          return throwError(() => new Error('Usuario inactivo'));
-        }
-
-        return this.http.post<any>(`${this.apiUrl}/usuario/verificar-password`, {
-          username,
-          password
-        }).pipe(
-          map(response => {
-            const loginResponse: LoginResponse = {
-              usuario: usuario,
-              token: response.token
-            };
-
-            localStorage.setItem('currentUser', JSON.stringify(usuario));
-            localStorage.setItem('isAuthenticated', 'true');
-            
-            this.currentUserSubject.next(usuario);
-
-            return loginResponse;
-          }),
-          catchError(error => {
-            console.error('Error verificando contraseña:', error);
-            return throwError(() => error);
-          })
-        );
+    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, {
+      username,
+      password
+    }).pipe(
+      tap(response => {
+        localStorage.setItem('authToken', response.token);
+        localStorage.setItem('currentUser', JSON.stringify(response.usuario));
+        localStorage.setItem('isAuthenticated', 'true');
+        
+        this.currentUserSubject.next(response.usuario);
+        
+        console.log('Login exitoso, token guardado:', response.token);
       }),
       catchError(error => {
         console.error('Error en login:', error);
@@ -67,13 +48,19 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem('currentUser');
     localStorage.removeItem('isAuthenticated');
-    localStorage.removeItem('recordarCredenciales');
+    localStorage.removeItem('authToken');
     this.currentUserSubject.next(null);
     this.router.navigate(['/auth/login']);
   }
 
   isAuthenticated(): boolean {
-    return localStorage.getItem('isAuthenticated') === 'true';
+    const token = localStorage.getItem('authToken');
+    const isAuth = localStorage.getItem('isAuthenticated') === 'true';
+    return !!(token && isAuth);
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem('authToken');
   }
 
   getCurrentUser(): Usuario | null {
