@@ -1,0 +1,54 @@
+<aside class="sidebar" [class.collapsed]="collapsed">
+    <div class="sidebar-header">
+        <div class="logo-container">
+            <img src="images/logo.webp" alt="Logo" class="logo-img" />
+            <span class="logo-text" *ngIf="!collapsed">Me Late a Café</span>
+        </div>
+    </div>
+
+    <div class="user-profile" *ngIf="currentUser">
+        <div class="profile-content">
+            <p-avatar [label]="getInitials()" styleClass="avatar-large" shape="circle"
+                [style]="{ 'background-color': '#6f4e37', 'color': '#ffffff' }"></p-avatar>
+
+            <div class="user-info" *ngIf="!collapsed">
+                <h4 class="user-name">{{ getFullName() }}</h4>
+                <span class="user-role">{{ getRoleName() }}</span>
+            </div>
+        </div>
+
+        <button *ngIf="!collapsed" pButton pRipple icon="pi pi-user" class="p-button-text p-button-sm profile-button"
+            (click)="navigateToProfile()" pTooltip="Ver perfil" tooltipPosition="right"></button>
+    </div>
+
+    <nav class="sidebar-nav">
+        <ul class="nav-list">
+            <li *ngFor="let item of menuItems" class="nav-item" [class.hidden]="!hasAccess(item)">
+
+                (click)="navigateTo(item.route)"
+                [class.active]="isActiveRoute(item.route)"
+                class="nav-link"
+                [pTooltip]="collapsed ? item.label : ''"
+                tooltipPosition="right"
+                pRipple
+                >
+                <i [class]="item.icon" class="nav-icon"></i>
+                <span class="nav-label" *ngIf="!collapsed">{{ item.label }}</span>
+                <span *ngIf="item.badge && item.badge > 0 && !collapsed" class="nav-badge">
+                    {{ item.badge }}
+                </span>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+        <button pButton pRipple [icon]="collapsed ? 'pi pi-angle-right' : 'pi pi-angle-left'"
+            class="p-button-text toggle-button" (click)="toggleSidebar()"
+            [pTooltip]="collapsed ? 'Expandir menú' : 'Contraer menú'" tooltipPosition="right"></button>
+
+        <button pButton pRipple icon="pi pi-sign-out" class="p-button-danger p-button-text logout-button"
+            (click)="logout()" [pTooltip]="collapsed ? 'Cerrar sesión' : ''" tooltipPosition="right">
+            <span *ngIf="!collapsed" class="ml-2">Cerrar Sesión</span>
+        </button>
+    </div>
+</aside>

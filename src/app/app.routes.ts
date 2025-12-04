@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './core/guards/auth-guard';
 
 export const routes: Routes = [
     {
@@ -29,25 +30,37 @@ export const routes: Routes = [
             }
         ]
     },
-    // {
-  //   path: 'admin',
-  //   canActivate: [authGuard],
-  //   loadComponent: () => import('./admin/layout/admin-layout/admin-layout').then(m => m.AdminLayout),
-  //   children: [
-  //     {
-  //       path: 'dashboard',
-  //       loadComponent: () => import('./admin/pages/dashboard/dashboard').then(m => m.Dashboard)
-  //     },
-  //     {
-  //       path: 'productos',
-  //       loadComponent: () => import('./admin/pages/productos/productos').then(m => m.Productos)
-  //     },
-  //     {
-  //       path: 'pedidos',
-  //       loadComponent: () => import('./admin/pages/pedidos/pedidos').then(m => m.Pedidos)
-  //     }
-  //   ]
-  // },
+    {
+        path: 'admin',
+        canActivate: [authGuard],
+        loadComponent: () => import('./admin/layout/admin-layout/admin-layout').then(m => m.AdminLayout),
+        children: [
+            {
+                path: 'dashboard',
+                loadComponent: () => import('./admin/pages/dashboard/dashboard').then(m => m.Dashboard)
+            },
+            {
+                path: 'usuarios',
+                loadComponent: () => import('./admin/pages/usuarios/usuarios').then(m => m.Usuarios)
+            },
+            {
+                path: 'categorias',
+                loadComponent: () => import('./admin/pages/categorias/categorias').then(m => m.Categorias)
+            },
+            {
+                path: 'menu',
+                loadComponent: () => import('./admin/pages/menu/menu').then(m => m.Menu)
+            },
+            {
+                path: 'pedidos',
+                loadComponent: () => import('./admin/pages/pedidos/pedidos').then(m => m.Pedidos)
+            },
+            {
+                path: 'reservas',
+                loadComponent: () => import('./admin/pages/reservas/reservas').then(m => m.Reservas)
+            }
+        ]
+    },
     {
         path: '**',
         redirectTo: 'inicio'
