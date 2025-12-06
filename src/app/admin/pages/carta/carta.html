@@ -1,0 +1,179 @@
+<div class="page-container">
+    <div class="page-header">
+        <div class="header-content">
+            <h1 class="page-title">Menú</h1>
+            <p class="page-subtitle">Gestión de productos y carta</p>
+        </div>
+        <div class="header-actions">
+            <button pButton label="Nuevo Producto" icon="pi pi-plus"
+                class="p-button-rounded bg-cafe-primary border-cafe-primary" (click)="openCreateDialog()">
+            </button>
+        </div>
+    </div>
+
+    <div class="filters-container mb-4">
+        <p-iconfield iconPosition="left" class="w-full">
+            <p-inputicon styleClass="pi pi-search" />
+            <input type="text" pInputText placeholder="Buscar hamburguesa, café..." class="w-full search-input"
+                [(ngModel)]="searchValue" (input)="onGlobalFilter($event)" />
+        </p-iconfield>
+
+        <div class="filters-row mt-3 flex gap-3 flex-wrap">
+            <p-select [options]="categorias" [(ngModel)]="selectedCategoria" optionLabel="nombre"
+                placeholder="Todas las categorías" class="filter-dropdown" [showClear]="true"
+                (onChange)="filterByCategoria()">
+                <ng-template pTemplate="item" let-cat>
+                    <div class="flex align-items-center gap-2">
+                        <i class="pi pi-tag text-gray-400"></i>
+                        <span>{{ cat.nombre }}</span>
+                    </div>
+                </ng-template>
+            </p-select>
+
+            <button pButton label="Limpiar filtros" icon="pi pi-filter-slash" class="p-button-outlined custom-clear-btn"
+                (click)="clearFilters()">
+            </button>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <p-table #dt [value]="productos" [loading]="loading" [paginator]="true" [rows]="10"
+            [globalFilterFields]="['nombre', 'descripcion', 'categoria.nombre']" [showCurrentPageReport]="true"
+            responsiveLayout="scroll"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} productos">
+
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width: 100px;">Imagen</th>
+                    <th pSortableColumn="nombre">Producto <p-sortIcon field="nombre"></p-sortIcon></th>
+                    <th pSortableColumn="categoria.nombre">Categoría <p-sortIcon field="categoria.nombre"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="precio">Precio <p-sortIcon field="precio"></p-sortIcon></th>
+                    <th pSortableColumn="estado">Estado</th>
+                    <th style="width: 50px; text-align: center;"></th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-producto>
+                <tr>
+                    <td>
+                        <div class="product-image-container shadow-sm">
+                            <img [src]="producto.imagenUrl || 'assets/images/placeholder-food.png'" alt="Producto"
+                                class="product-img"
+                                onerror="this.src='https://primefaces.org/cdn/primeng/images/demo/product/bamboo-watch.jpg'">
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="flex flex-col">
+                            <span class="font-bold text-gray-800 text-base">{{ producto.nombre }}</span>
+                            <span class="text-sm text-gray-500 max-w-xs truncate" [pTooltip]="producto.descripcion"
+                                tooltipPosition="top">
+                                {{ producto.descripcion }}
+                            </span>
+                        </div>
+                    </td>
+
+                    <td>
+                        <p-tag [value]="producto.categoria.nombre" severity="info"
+                            styleClass="text-xs uppercase px-2"></p-tag>
+                    </td>
+
+                    <td>
+                        <span class="font-serif text-lg font-bold text-cafe-primary">
+                            {{ producto.precio | currency:'PEN':'symbol':'1.2-2' }}
+                        </span>
+                    </td>
+
+                    <td>
+                        <p-tag [value]="producto.estado ? 'Disponible' : 'Agotado'"
+                            [severity]="producto.estado ? 'success' : 'danger'" styleClass="text-xs font-medium">
+                        </p-tag>
+                    </td>
+
+                    <td style="text-align: center;">
+                        <button pButton type="button" icon="pi pi-ellipsis-v"
+                            class="p-button-text p-button-rounded p-button-plain action-menu-btn"
+                            (click)="toggleMenu(menu, $event, producto)">
+                        </button>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>
+
+<p-menu #menu [model]="menuItems" [popup]="true" appendTo="body"></p-menu>
+
+<p-dialog [(visible)]="showDialog" [modal]="true" [style]="{width: '100%', maxWidth: '600px'}"
+    [header]="modalMode === 'create' ? 'Nuevo Producto' : 'Editar Producto'" styleClass="custom-modal"
+    [draggable]="false" [resizable]="false">
+
+    <div class="dialog-content pt-4" [formGroup]="productoForm">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="field">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del Producto <span
+                        class="text-red-500">*</span></label>
+                <input pInputText formControlName="nombre" class="w-full" placeholder="Ej: Café Americano" />
+            </div>
+
+            <div class="field">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Categoría <span
+                        class="text-red-500">*</span></label>
+                <p-select formControlName="idCategoria" [options]="categorias" optionLabel="nombre"
+                    optionValue="idCategoria" styleClass="w-full" placeholder="Seleccione">
+                </p-select>
+            </div>
+        </div>
+
+        <div class="field mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Descripción Detallada <span
+                    class="text-red-500">*</span></label>
+            <textarea pInputTextarea formControlName="descripcion" rows="3" class="w-full"
+                placeholder="Ingredientes, tamaño, detalles..."></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="field">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Precio Unitario (S/.) <span
+                        class="text-red-500">*</span></label>
+                <p-inputNumber formControlName="precio" mode="currency" currency="PEN" locale="es-PE" placeholder="0.00"
+                    styleClass="w-full input-number-custom">
+                </p-inputNumber>
+            </div>
+
+            <div class="field">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Disponibilidad</label>
+                <p-select formControlName="estado" [options]="estadoOptions" optionLabel="label" optionValue="value"
+                    styleClass="w-full"></p-select>
+            </div>
+        </div>
+
+        <div class="field mb-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">URL de la Imagen</label>
+            <div class="p-inputgroup">
+                <span class="p-inputgroup-addon"><i class="pi pi-image"></i></span>
+                <input pInputText formControlName="imagenUrl" placeholder="https://..." />
+            </div>
+            <small class="text-gray-500">Pega el enlace de una imagen (Google Drive, Cloudinary, etc)</small>
+        </div>
+
+        <div *ngIf="productoForm.get('imagenUrl')?.value"
+            class="flex justify-center mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+            <img [src]="productoForm.get('imagenUrl')?.value" alt="Preview" class="h-32 object-contain rounded">
+        </div>
+
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-end gap-2 mt-4">
+            <button pButton label="Cancelar" class="p-button-outlined p-button-secondary custom-cancel-btn"
+                (click)="showDialog = false">
+            </button>
+            <button pButton [label]="modalMode === 'create' ? 'Guardar Producto' : 'Actualizar'" icon="pi pi-check"
+                class="bg-cafe-primary border-cafe-primary" (click)="saveProducto()" [loading]="submitting">
+            </button>
+        </div>
+    </ng-template>
+</p-dialog>

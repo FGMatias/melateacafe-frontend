@@ -3,7 +3,7 @@ import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import * as L from 'leaflet';
 import { CarouselModule } from 'primeng/carousel';
-import { Producto } from '../../../core/models/producto';
+import { Producto, ProductoResponse } from '../../../core/models/producto';
 import { CarritoService } from '../../../core/services/carrito';
 import { ProductoService } from '../../../core/services/producto';
 
@@ -21,11 +21,11 @@ interface Testimonial {
   styleUrl: './inicio.scss',
 })
 export class Inicio implements OnInit, AfterViewInit {
-  productosDestacados: Producto[] = [];
+  productosDestacados: ProductoResponse[] = [];
 
   loadingCategorias = true;
   loadingProductos = true;
-  
+
   responsiveOptions: any[] = [
     {
       breakpoint: '1400px',
@@ -73,38 +73,45 @@ export class Inicio implements OnInit, AfterViewInit {
   constructor(
     private productoService: ProductoService,
     private carritoService: CarritoService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
-    this.cargarProductosDestacados();
+    this.productoService.getDestacados().subscribe({
+      next: (productos: ProductoResponse[]) => {
+        this.productosDestacados = productos.filter((p: ProductoResponse) => p.estado);
+      },
+      error: (error: any) => {
+        console.error('Error cargando destacados', error);
+      }
+    });
   }
 
-  cargarProductosDestacados(): void {
-    this.loadingProductos = true;
-    this.productoService.getProductosDestacados().subscribe({
-      next: (productos) => {
-        this.productosDestacados = productos.filter(p => p.estado);
-        this.loadingProductos = false;
-        console.log('Productos destacados cargados: ', this.productosDestacados);
-      },
-      error: (error) => {
-        console.log('Error al cargar los productos: ', error);
-        this.loadingProductos = false;
-      }
-    })
-  }
+  // cargarProductosDestacados(): void {
+  //   this.loadingProductos = true;
+  //   this.productoService.getProductosDestacados().subscribe({
+  //     next: (productos) => {
+  //       this.productosDestacados = productos.filter(p => p.estado);
+  //       this.loadingProductos = false;
+  //       console.log('Productos destacados cargados: ', this.productosDestacados);
+  //     },
+  //     error: (error) => {
+  //       console.log('Error al cargar los productos: ', error);
+  //       this.loadingProductos = false;
+  //     }
+  //   })
+  // }
 
   agregarAlCarrito(producto: Producto): void {
     this.carritoService.agregarProducto(producto, 1);
   }
 
   ngAfterViewInit(): void {
-	this.initMapa();
+    this.initMapa();
   }
 
   initMapa(): void {
-	const coordenadas: L.LatLngTuple = [-11.886729198165341, -77.03574616239975];
-    
+    const coordenadas: L.LatLngTuple = [-11.886729198165341, -77.03574616239975];
+
     const mapContainer = L.DomUtil.get('mapa-leaflet');
     if (mapContainer && (mapContainer as any)._leaflet_id) {
       return;

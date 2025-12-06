@@ -14,7 +14,9 @@ import { Table, TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import Swal from 'sweetalert2';
+import { EstadoMesa } from '../../../core/models/estado-mesa';
 import { Mesa } from '../../../core/models/mesa';
+import { EstadoMesaService } from '../../../core/services/estado-mesa';
 import { MesaService } from '../../../core/services/mesa';
 
 @Component({
@@ -41,21 +43,15 @@ import { MesaService } from '../../../core/services/mesa';
 })
 export class Mesas implements OnInit {
   mesas: Mesa[] = [];
+  estados: EstadoMesa[] = [];
+
   loading: boolean = false;
   submitting: boolean = false;
-
   showDialog: boolean = false;
   modalMode: 'create' | 'edit' = 'create';
 
   searchValue: string = '';
-  selectedEstado: any | null = null;
-
-  estadoOptions = [
-    { label: 'Disponible', value: 'DISPONIBLE' },
-    { label: 'Ocupada', value: 'OCUPADA' },
-    { label: 'Reservada', value: 'RESERVADA' },
-    { label: 'Mantenimiento', value: 'MANTENIMIENTO' }
-  ];
+  selectedEstado: EstadoMesa | null = null;
 
   mesaForm: FormGroup;
   currentMesaId: number | null = null;
@@ -67,35 +63,38 @@ export class Mesas implements OnInit {
 
   constructor(
     private mesaService: MesaService,
+    private estadoMesaService: EstadoMesaService,
     private fb: FormBuilder
   ) {
     this.mesaForm = this.fb.group({
-      numeroMesa: ['', [Validators.required, Validators.maxLength(10)]],
+      numero: [null, [Validators.required, Validators.min(1)]], // Es Integer en Java
       capacidad: [2, [Validators.required, Validators.min(1), Validators.max(20)]],
-      estado: ['DISPONIBLE', [Validators.required]],
-      descripcion: ['']
+      idEstadoMesa: [null, [Validators.required]] // Control del select
     });
   }
 
   ngOnInit(): void {
-    this.loadMesas();
+    this.loadData();
   }
 
-  loadMesas(): void {
+  loadData(): void {
     this.loading = true;
+
     this.mesaService.getAll().subscribe({
       next: (data) => {
         this.mesas = data;
         this.loading = false;
       },
-      error: (err) => {
-        console.error(err);
+      error: () => {
         this.loading = false;
       }
     });
+
+    this.estadoMesaService.getAll().subscribe(data => this.estados = data);
   }
 
-  getSeverity(estado: string): "success" | "info" | "warn" | "danger" | "secondary" | "contrast" | undefined {
+  getSeverity(nombreEstado: string): "success" | "info" | "warn" | "danger" | "secondary" | undefined {
+    const estado = nombreEstado?.toUpperCase();
     switch (estado) {
       case 'DISPONIBLE': return 'success';
       case 'OCUPADA': return 'danger';
@@ -112,8 +111,8 @@ export class Mesas implements OnInit {
 
   filterByEstado(): void {
     if (this.table) {
-      const valor = this.selectedEstado ? this.selectedEstado.value : null;
-      this.table.filter(valor, 'estado', 'equals');
+      const valor = this.selectedEstado ? this.selectedEstado.nombre : null;
+      this.table.filter(valor, 'estadoMesa.nombre', 'equals');
     }
   }
 
@@ -126,9 +125,12 @@ export class Mesas implements OnInit {
   openCreateDialog(): void {
     this.modalMode = 'create';
     this.currentMesaId = null;
+
+    const estadoInicial = this.estados.find(e => e.nombre.toUpperCase() === 'DISPONIBLE')?.idEstadoMesa;
+
     this.mesaForm.reset({
       capacidad: 4,
-      estado: 'DISPONIBLE'
+      idEstadoMesa: estadoInicial
     });
     this.showDialog = true;
   }
@@ -136,10 +138,11 @@ export class Mesas implements OnInit {
   openEditDialog(mesa: Mesa): void {
     this.modalMode = 'edit';
     this.currentMesaId = mesa.idMesa;
+
     this.mesaForm.patchValue({
-      numeroMesa: mesa.numero,
+      numero: mesa.numero,
       capacidad: mesa.capacidad,
-      estado: mesa.estado,
+      idEstadoMesa: mesa.estadoMesa.idEstadoMesa,
     });
     this.showDialog = true;
   }
@@ -151,7 +154,13 @@ export class Mesas implements OnInit {
     }
 
     this.submitting = true;
-    const mesaDTO = this.mesaForm.value;
+    const formValue = this.mesaForm.value;
+
+    const mesaDTO = {
+      numero: formValue.numero,
+      capacidad: formValue.capacidad,
+      idEstado: formValue.idEstadoMesa
+    };
 
     const request$ = this.modalMode === 'create'
       ? this.mesaService.create(mesaDTO)
@@ -161,11 +170,12 @@ export class Mesas implements OnInit {
       next: () => {
         this.submitting = false;
         this.showDialog = false;
-        this.loadMesas();
+        this.loadData();
         Swal.fire('Éxito', `Mesa ${this.modalMode === 'create' ? 'creada' : 'actualizada'} correctamente`, 'success');
       },
       error: (err) => {
         this.submitting = false;
+        console.error(err);
         Swal.fire('Error', 'No se pudo guardar la mesa', 'error');
       }
     });
@@ -174,7 +184,7 @@ export class Mesas implements OnInit {
   deleteMesa(mesa: Mesa): void {
     Swal.fire({
       title: '¿Eliminar mesa?',
-      text: `Mesa N° ${mesa.numero}. Si tiene pedidos activos, no se podrá eliminar.`,
+      text: `Mesa N° ${mesa.numero}.`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Sí, eliminar',
@@ -186,9 +196,9 @@ export class Mesas implements OnInit {
         this.mesaService.delete(mesa.idMesa).subscribe({
           next: () => {
             Swal.fire('Eliminado', 'La mesa ha sido eliminada', 'success');
-            this.loadMesas();
+            this.loadData();
           },
-          error: () => Swal.fire('Error', 'No se pudo eliminar la mesa', 'error')
+          error: () => Swal.fire('Error', 'No se pudo eliminar (posiblemente tenga pedidos)', 'error')
         });
       }
     });

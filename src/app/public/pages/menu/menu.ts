@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CategoriaProducto } from '../../../core/models/categoria-producto';
-import { Producto } from '../../../core/models/producto';
+import { Producto, ProductoResponse } from '../../../core/models/producto';
 import { CarritoService } from '../../../core/services/carrito';
 import { CategoriaProductoService } from '../../../core/services/categoria-producto';
 import { ProductoService } from '../../../core/services/producto';
@@ -16,9 +16,9 @@ import { ProductoService } from '../../../core/services/producto';
 })
 export class Menu implements OnInit {
   categorias: CategoriaProducto[] = [];
-  productos: Producto[] = [];
-  productosFiltrados: Producto[] = [];
-  productosPaginados: Producto[] = [];
+  productos: ProductoResponse[] = [];
+  productosFiltrados: ProductoResponse[] = [];
+  productosPaginados: ProductoResponse[] = [];
 
   loadingCategorias = true;
   loadingProductos = true;
@@ -60,18 +60,15 @@ export class Menu implements OnInit {
 
   cargarProductos(): void {
     this.loadingProductos = true;
-    this.productoService.getProductos().subscribe({
-      next: (productos) => {
-        this.productos = productos.filter((p) => p.estado);
-        this.productosFiltrados = [...this.productos];
-        this.aplicarFiltros();
+    this.productoService.getActivos().subscribe({
+      next: (productos: ProductoResponse[]) => {
+        this.productos = productos;
         this.loadingProductos = false;
-        console.log('Productos cargados:', this.productos);
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error al cargar productos:', error);
         this.loadingProductos = false;
-      },
+      }
     });
   }
 
@@ -104,7 +101,7 @@ export class Menu implements OnInit {
       productosFiltrados = productosFiltrados.filter(
         (p) =>
           p.nombre.toLowerCase().includes(busquedaLower) ||
-          p.descripcion.toLowerCase().includes(busquedaLower)
+          p.descripcion?.toLowerCase().includes(busquedaLower)
       );
     }
 

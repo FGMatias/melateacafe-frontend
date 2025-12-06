@@ -19,9 +19,15 @@
         </p-iconfield>
 
         <div class="filters-row mt-3 flex gap-3 flex-wrap">
-            <p-select [options]="estadoOptions" [(ngModel)]="selectedEstado" optionLabel="label"
+            <p-select [options]="estados" [(ngModel)]="selectedEstado" optionLabel="nombre"
                 placeholder="Filtrar por Estado" class="filter-dropdown" [showClear]="true"
                 (onChange)="filterByEstado()">
+                <ng-template pTemplate="item" let-estado>
+                    <div class="flex align-items-center gap-2">
+                        <p-tag [value]="estado.nombre" [severity]="getSeverity(estado.nombre)"
+                            styleClass="text-xs"></p-tag>
+                    </div>
+                </ng-template>
             </p-select>
 
             <button pButton label="Limpiar filtros" icon="pi pi-filter-slash" class="p-button-outlined custom-clear-btn"
@@ -32,15 +38,14 @@
 
     <div class="table-container">
         <p-table #dt [value]="mesas" [loading]="loading" [paginator]="true" [rows]="10"
-            [globalFilterFields]="['numeroMesa', 'descripcion']" [showCurrentPageReport]="true"
+            [globalFilterFields]="['numero', 'estadoMesa.nombre']" [showCurrentPageReport]="true"
             responsiveLayout="scroll" currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} mesas">
 
             <ng-template pTemplate="header">
                 <tr>
-                    <th pSortableColumn="numeroMesa">Mesa <p-sortIcon field="numeroMesa"></p-sortIcon></th>
+                    <th pSortableColumn="numero">Mesa <p-sortIcon field="numero"></p-sortIcon></th>
                     <th pSortableColumn="capacidad">Capacidad <p-sortIcon field="capacidad"></p-sortIcon></th>
-                    <th pSortableColumn="descripcion">Ubicación</th>
-                    <th pSortableColumn="estado">Estado</th>
+                    <th pSortableColumn="estadoMesa.nombre">Estado</th>
                     <th style="width: 50px; text-align: center;"></th>
                 </tr>
             </ng-template>
@@ -54,7 +59,7 @@
                                 <i class="pi pi-th-large text-lg"></i>
                             </div>
                             <div class="flex flex-col">
-                                <span class="font-bold text-gray-800 text-base">Mesa {{ mesa.numeroMesa }}</span>
+                                <span class="font-bold text-gray-800 text-base">Mesa {{ mesa.numero }}</span>
                                 <span class="text-xs text-gray-400">ID: {{ mesa.idMesa }}</span>
                             </div>
                         </div>
@@ -69,11 +74,7 @@
                     </td>
 
                     <td>
-                        <span class="text-gray-600 text-sm">{{ mesa.descripcion || 'Sin ubicación específica' }}</span>
-                    </td>
-
-                    <td>
-                        <p-tag [value]="mesa.estado" [severity]="getSeverity(mesa.estado)"
+                        <p-tag [value]="mesa.estadoMesa.nombre" [severity]="getSeverity(mesa.estadoMesa.nombre)"
                             styleClass="text-xs px-2 font-medium">
                         </p-tag>
                     </td>
@@ -89,7 +90,7 @@
 
             <ng-template pTemplate="emptymessage">
                 <tr>
-                    <td colspan="5" class="text-center p-6">
+                    <td colspan="4" class="text-center p-6">
                         <div class="flex flex-col items-center justify-center text-gray-400">
                             <i class="pi pi-th-large text-4xl mb-2 opacity-50"></i>
                             <span>No se encontraron mesas.</span>
@@ -103,17 +104,24 @@
 
 <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body"></p-menu>
 
-<p-dialog [(visible)]="showDialog" [modal]="true" [style]="{width: '100%', maxWidth: '450px'}"
+<p-dialog [(visible)]="showDialog" [modal]="true" [style]="{width: '100%', maxWidth: '400px'}"
     [header]="modalMode === 'create' ? 'Nueva Mesa' : 'Editar Mesa'" styleClass="custom-modal" [draggable]="false"
     [resizable]="false">
 
     <div class="dialog-content pt-4" [formGroup]="mesaForm">
-        <div class="grid grid-cols-2 gap-4 mb-4">
+        <div class="grid grid-cols-1 gap-4 mb-4">
+
             <div class="field">
                 <label class="block text-sm font-medium text-gray-700 mb-1">N° de Mesa <span
                         class="text-red-500">*</span></label>
-                <input pInputText formControlName="numeroMesa" class="w-full" placeholder="Ej: 10" />
+                <p-inputNumber formControlName="numero" [useGrouping]="false" placeholder="Ej: 10"
+                    styleClass="w-full input-number-custom">
+                </p-inputNumber>
+                <small *ngIf="mesaForm.get('numero')?.invalid && mesaForm.get('numero')?.touched" class="text-red-500">
+                    Requerido
+                </small>
             </div>
+
             <div class="field">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Capacidad <span
                         class="text-red-500">*</span></label>
@@ -124,15 +132,23 @@
             </div>
         </div>
 
-        <div class="field mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Ubicación / Descripción</label>
-            <input pInputText formControlName="descripcion" class="w-full" placeholder="Ej: Terraza" />
-        </div>
-
         <div class="field">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Estado Inicial</label>
-            <p-select formControlName="estado" [options]="estadoOptions" optionLabel="label" optionValue="value"
-                styleClass="w-full"></p-select>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+            <p-select formControlName="idEstadoMesa" [options]="estados" optionLabel="nombre" optionValue="idEstadoMesa"
+                styleClass="w-full" placeholder="Seleccione estado">
+                <ng-template pTemplate="selectedItem" let-selected>
+                    <div class="flex align-items-center gap-2" *ngIf="selected">
+                        <p-tag [value]="selected.nombre" [severity]="getSeverity(selected.nombre)"
+                            styleClass="text-xs"></p-tag>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="item" let-estado>
+                    <div class="flex align-items-center gap-2">
+                        <p-tag [value]="estado.nombre" [severity]="getSeverity(estado.nombre)"
+                            styleClass="text-xs"></p-tag>
+                    </div>
+                </ng-template>
+            </p-select>
         </div>
     </div>
 

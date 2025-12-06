@@ -1,0 +1,67 @@
+$cafe-primary: #6f4e37;
+$cafe-dark: #3e2723;
+$bg-light: #ffffff;
+$border-color: #e5e7eb;
+$gray-light: #f3f4f6;
+
+.product-image-container {
+    width: 60px;
+    height: 60px;
+    background-color: #fcfbf9;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid $border-color;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .product-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
+
+.text-cafe-primary {
+    color: $cafe-primary;
+}
+
+::ng-deep .input-number-custom {
+    .p-inputnumber-input {
+        text-align: right;
+    }
+}
+
+.action-menu-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    background-color: $gray-light !important;
+    color: #6b7280 !important;
+
+    &:hover {
+        background-color: #e5e7eb !important;
+        color: $cafe-primary !important;
+    }
+}
+
+.custom-cancel-btn {
+    background-color: white !important;
+    color: #4b5563 !important;
+    border-color: #d1d5db !important;
+
+    &:hover {
+        background-color: #f9fafb !important;
+    }
+}
+
+::ng-deep .custom-modal {
+    .p-dialog-header {
+        background-color: #fcfbf9;
+
+        .p-dialog-title {
+            font-family: 'Playfair Display', serif;
+            color: $cafe-dark;
+            font-weight: 700;
+        }
+    }
+}

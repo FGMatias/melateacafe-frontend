@@ -69,7 +69,7 @@ export class Sidebar implements OnInit {
       {
         label: 'Menú/Carta',
         icon: 'pi pi-book',
-        route: '/admin/menu'
+        route: '/admin/carta'
       },
       {
         label: 'Categorías',

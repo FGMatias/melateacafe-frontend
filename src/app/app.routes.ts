@@ -52,8 +52,8 @@ export const routes: Routes = [
                 loadComponent: () => import('./admin/pages/categorias/categorias').then(m => m.Categorias)
             },
             {
-                path: 'menu',
-                loadComponent: () => import('./admin/pages/menu/menu').then(m => m.Menu)
+                path: 'carta',
+                loadComponent: () => import('./admin/pages/carta/carta').then(m => m.Carta)
             },
             {
                 path: 'pedidos',

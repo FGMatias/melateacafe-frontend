@@ -15,8 +15,28 @@ export interface Producto {
 
 export interface ProductoResponse {
     idProducto: number;
+    categoriaProducto: CategoriaProducto;
     nombre: string;
     descripcion?: string;
     precio: number;
     imagenUrl?: string;
+    estado: boolean;
+}
+
+export interface CreateProductoRequest {
+    idCategoriaProducto: number;
+    nombre: string;
+    descripcion?: string;
+    precio: number;
+    imagenUrl?: string;
+    estado?: boolean;
+}
+
+export interface UpdateProductoRequest {
+    idCategoriaProducto: number;
+    nombre: string;
+    descripcion?: string;
+    precio: number;
+    imagenUrl?: string;
+    estado?: boolean;
 }
