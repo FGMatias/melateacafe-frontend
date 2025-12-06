@@ -12,3 +12,11 @@ export interface Producto {
     estado: boolean;
     fechaCreacion: string;
 }
+
+export interface ProductoResponse {
+    idProducto: number;
+    nombre: string;
+    descripcion?: string;
+    precio: number;
+    imagenUrl?: string;
+}

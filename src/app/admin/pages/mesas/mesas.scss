@@ -1,0 +1,156 @@
+$cafe-primary: #6f4e37;
+$cafe-dark: #3e2723;
+$bg-light: #ffffff;
+$border-color: #e5e7eb;
+$gray-light: #f3f4f6;
+
+.page-container {
+    padding: 0;
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+
+        .header-content {
+            display: flex;
+            flex-direction: column;
+
+            .page-title {
+                font-family: 'Playfair Display', serif;
+                font-size: 2rem;
+                color: $cafe-dark;
+                margin: 0;
+                line-height: 1.2;
+            }
+
+            .page-subtitle {
+                color: #64748b;
+                font-size: 0.95rem;
+                margin: 0;
+            }
+        }
+    }
+}
+
+.filters-container {
+    background: $bg-light;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid $border-color;
+
+    .search-input {
+        border-radius: 8px;
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+        font-size: 0.95rem;
+
+        &:focus {
+            border-color: $cafe-primary;
+            box-shadow: 0 0 0 1px $cafe-primary;
+        }
+    }
+
+    .custom-clear-btn {
+        background-color: $cafe-primary !important;
+        border-color: $cafe-primary !important;
+        color: #ffffff !important;
+
+        .p-button-icon {
+            color: #ffffff !important;
+        }
+
+        &:hover {
+            background-color: $cafe-dark !important;
+        }
+    }
+}
+
+::ng-deep .p-datatable {
+    .p-datatable-header {
+        background: transparent;
+        border: none;
+    }
+
+    .p-datatable-thead>tr>th {
+        background: #fcfbf9;
+        color: $cafe-dark;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        border-bottom: 2px solid rgba($cafe-primary, 0.1);
+        padding: 1rem;
+    }
+
+    .p-datatable-tbody>tr {
+        background: $bg-light;
+        transition: background-color 0.2s;
+
+        >td {
+            padding: 1rem;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+
+        &:hover {
+            background-color: #faf9f8 !important;
+        }
+    }
+}
+
+::ng-deep .input-number-custom {
+    .p-inputnumber-button {
+        background-color: #fff;
+        color: $cafe-primary;
+        border: 1px solid $border-color;
+
+        &:hover {
+            background-color: $gray-light;
+        }
+    }
+
+    .p-inputtext {
+        text-align: center;
+        border-left: none;
+        border-right: none;
+    }
+}
+
+.action-menu-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    background-color: $gray-light !important;
+    color: #6b7280 !important;
+
+    &:hover {
+        background-color: #e5e7eb !important;
+        color: $cafe-primary !important;
+    }
+}
+
+.custom-cancel-btn {
+    background-color: white !important;
+    color: #4b5563 !important;
+    border-color: #d1d5db !important;
+
+    &:hover {
+        background-color: #f9fafb !important;
+    }
+}
+
+::ng-deep .custom-modal {
+    .p-dialog-header {
+        background-color: #fcfbf9;
+
+        .p-dialog-title {
+            font-family: 'Playfair Display', serif;
+            color: $cafe-dark;
+            font-weight: 700;
+        }
+    }
+}

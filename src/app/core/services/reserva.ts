@@ -52,10 +52,10 @@ export class MesaService {
     }
 
     cancelar(id: number): Observable<void> {
-        return this.http.patch<void>(`${this.apiUrl}/${id}/cancelar`, null);
+        return this.http.patch<void>(`${this.apiUrl}/${id}/cancelar`, {});
     }
 
     confirmar(id: number): Observable<void> {
-        return this.http.patch<void>(`${this.apiUrl}/${id}/confirmar`, null);
+        return this.http.patch<void>(`${this.apiUrl}/${id}/confirmar`, {});
     }
 }
