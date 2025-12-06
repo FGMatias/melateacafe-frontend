@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CategoriaProducto } from '../../../core/models/categoria-producto';
-import { Producto, ProductoResponse } from '../../../core/models/producto';
+import { ProductoResponse } from '../../../core/models/producto';
 import { CarritoService } from '../../../core/services/carrito';
 import { CategoriaProductoService } from '../../../core/services/categoria-producto';
 import { ProductoService } from '../../../core/services/producto';
@@ -153,7 +153,7 @@ export class Menu implements OnInit {
     this.aplicarFiltros();
   }
 
-  agregarAlCarrito(producto: Producto): void {
+  agregarAlCarrito(producto: ProductoResponse): void {
     this.carritoService.agregarProducto(producto, 1);
   }
 }

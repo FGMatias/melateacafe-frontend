@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, map } from 'rxjs';
-import type { Producto } from '../models/producto';
+import type { ProductoResponse } from '../models/producto';
 
 export interface ItemCarrito {
-  producto: Producto;
+  producto: ProductoResponse;
   cantidad: number;
 }
 
@@ -12,7 +12,7 @@ export interface ItemCarrito {
 })
 export class CarritoService {
   private itemsSubject = new BehaviorSubject<ItemCarrito[]>([]);
-  
+
   items$ = this.itemsSubject.asObservable();
 
   subtotal$ = this.items$.pipe(
@@ -37,7 +37,7 @@ export class CarritoService {
     }
   }
 
-  agregarProducto(producto: Producto, cantidad: number): void {
+  agregarProducto(producto: ProductoResponse, cantidad: number): void {
     const itemsActuales = this.itemsSubject.getValue();
     const itemExistente = itemsActuales.find(
       (i) => i.producto.idProducto === producto.idProducto,

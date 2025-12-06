@@ -20,6 +20,8 @@ export interface ProductoResponse {
     descripcion?: string;
     precio: number;
     imagenUrl?: string;
+    stockActual: number;
+    stockMinimo: number;
     estado: boolean;
 }
 
