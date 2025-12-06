@@ -30,23 +30,10 @@
               }
             ],
             "styles": [
-              {
-                "input": "node_modules/primeicons/primeicons.css",
-                "inject": true,
-                "bundleName": "primeicons"
-              },
-              {
-                "input": "node_modules/primeng/resources/themes/lara-light-blue/theme.css",
-                "inject": true,
-                "bundleName": "primeng-theme"
-              },
-              {
-                "input": "node_modules/primeng/resources/primeng.min.css",
-                "inject": true,
-                "bundleName": "primeng"
-              },
+              "node_modules/primeicons/primeicons.css",
               "src/styles.scss"
-            ]
+            ],
+            "scripts": []
           },
           "configurations": {
             "production": {
@@ -104,10 +91,9 @@
             ],
             "styles": [
               "node_modules/primeicons/primeicons.css",
-              "node_modules/primeng/resources/themes/lara-light-blue/theme.css",
-              "node_modules/primeng/resources/primeng.min.css",
               "src/styles.scss"
-            ]
+            ],
+            "scripts": []
           }
         }
       }
