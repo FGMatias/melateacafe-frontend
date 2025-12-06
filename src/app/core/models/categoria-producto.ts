@@ -4,3 +4,8 @@ export interface CategoriaProducto {
     descripcion: string;
     estado: boolean;
 }
+
+export interface CreateCategoriaProductoDTO {
+    nombre: string;
+    descripcion: string;
+}

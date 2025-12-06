@@ -12,18 +12,21 @@
     </div>
 
     <div class="filters-container mb-4">
+
         <p-iconfield iconPosition="left" class="w-full">
             <p-inputicon styleClass="pi pi-search" />
             <input type="text" pInputText placeholder="Buscar por nombre, email o DNI..." class="w-full search-input"
-                (input)="dt.filterGlobal($any($event.target).value, 'contains')" />
+                [(ngModel)]="searchValue" (input)="dt.filterGlobal($any($event.target).value, 'contains')" />
         </p-iconfield>
 
         <div class="filters-row mt-3 flex gap-3 flex-wrap">
-            <p-select [options]="cargos" optionLabel="nombre" placeholder="Todos los cargos"
-                class="filter-dropdown"></p-select>
+
+            <p-select [options]="cargos" [(ngModel)]="selectedCargo" optionLabel="nombre" placeholder="Todos los cargos"
+                class="filter-dropdown" [showClear]="true" (onChange)="filterByCargo()">
+            </p-select>
 
             <button pButton label="Limpiar filtros" icon="pi pi-filter-slash" class="p-button-outlined custom-clear-btn"
-                (click)="dt.clear()">
+                (click)="clearFilters()">
             </button>
         </div>
     </div>
@@ -184,6 +187,168 @@
             <button *ngIf="modalMode !== 'view'" pButton
                 [label]="modalMode === 'create' ? 'Guardar Trabajador' : 'Actualizar'" icon="pi pi-check"
                 (click)="saveTrabajador()" [loading]="submitting">
+            </button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="showUserDialog" [modal]="true" [style]="{width: '400px'}" [draggable]="false" [resizable]="false"
+    [closable]="true" styleClass="user-card-modal" header="Credenciales de Acceso">
+
+    <div class="user-card-content" *ngIf="selectedUser">
+
+        <div class="profile-header">
+            <div class="avatar-container">
+                <p-avatar [label]="selectedUser.username.substring(0, 2).toUpperCase()" size="xlarge" shape="circle"
+                    styleClass="profile-avatar">
+                </p-avatar>
+                <div class="status-indicator" [ngClass]="{'active': selectedUser.estado}"></div>
+            </div>
+
+            <h2 class="profile-username">{{ selectedUser.username }}</h2>
+            <p class="profile-role">{{ selectedUser.rol.nombre }}</p>
+        </div>
+
+        <div class="profile-details">
+            <div class="detail-item">
+                <div class="icon-box">
+                    <i class="pi pi-id-card"></i>
+                </div>
+                <div class="info">
+                    <label>Trabajador Asociado</label>
+                    <span>{{ getFullName(selectedUser.trabajador!) }}</span>
+                </div>
+            </div>
+
+            <div class="detail-item">
+                <div class="icon-box">
+                    <i class="pi pi-envelope"></i>
+                </div>
+                <div class="info">
+                    <label>Correo de Acceso</label>
+                    <span>{{ selectedUser.email }}</span>
+                </div>
+            </div>
+
+            <div class="detail-item">
+                <div class="icon-box">
+                    <i class="pi pi-shield"></i>
+                </div>
+                <div class="info">
+                    <label>Estado de Cuenta</label>
+                    <p-tag [value]="selectedUser.estado ? 'Activo' : 'Inactivo'"
+                        [severity]="selectedUser.estado ? 'success' : 'danger'"
+                        styleClass="uppercase text-xs font-bold">
+                    </p-tag>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-footer-note">
+            <i class="pi pi-info-circle mr-1"></i>
+            Este usuario tiene acceso completo al sistema según su rol.
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-center w-full">
+            <button pButton label="Cerrar" class="p-button-outlined p-button-secondary w-full"
+                style="background-color: white !important; color: #4b5563 !important; border-color: #d1d5db !important;"
+                (click)="showUserDialog = false">
+            </button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="showCreateUserDialog" [modal]="true" [style]="{width: '100%', maxWidth: '500px'}"
+    [draggable]="false" [resizable]="false" header="Asignar Acceso al Sistema"
+    styleClass="custom-modal user-creation-modal" (onHide)="closeCreateUserDialog()">
+
+    <div class="dialog-content" [formGroup]="userForm">
+
+        <div class="worker-context-card mb-5" *ngIf="selectedTrabajador">
+            <div class="icon-wrapper">
+                <i class="pi pi-user-plus"></i>
+            </div>
+            <div class="worker-info">
+                <span class="label">Trabajador seleccionado:</span>
+                <span class="value">{{ getFullName(selectedTrabajador) }}</span>
+                <span class="badge">{{ selectedTrabajador.cargo.nombre }}</span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4">
+            <div class="field">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre de Usuario <span
+                        class="text-red-500">*</span></label>
+                <div class="p-inputgroup">
+                    <span class="p-inputgroup-addon bg-gray-50 text-gray-500"></span>
+                    <input pInputText formControlName="username" placeholder="jperez" />
+                </div>
+                <small class="text-gray-500 text-xs mt-1">Sugerido automáticamente. Puedes cambiarlo.</small>
+            </div>
+
+            <div class="field">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Rol de Permisos <span
+                        class="text-red-500">*</span></label>
+                <p-select [options]="roles" formControlName="idRol" optionLabel="nombre" optionValue="idRol"
+                    placeholder="Seleccione un rol" styleClass="w-full" appendTo="body">
+                    <ng-template pTemplate="selectedItem" let-selectedOption>
+                        <div class="flex align-items-center gap-2" *ngIf="selectedOption">
+                            <i class="pi pi-shield text-cafe-primary"></i>
+                            <div>{{ selectedOption.nombre }}</div>
+                        </div>
+                    </ng-template>
+                    <ng-template pTemplate="item" let-rol>
+                        <div class="flex align-items-center gap-2">
+                            <i class="pi pi-shield text-gray-400"></i>
+                            <div>{{ rol.nombre }}</div>
+                        </div>
+                    </ng-template>
+                </p-select>
+            </div>
+
+            <div class="field">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Correo de Recuperación <span
+                        class="text-red-500">*</span></label>
+                <input pInputText formControlName="email" class="w-full" />
+            </div>
+
+            <div class="divider border-t border-gray-100 my-2"></div>
+
+            <div class="field">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña <span
+                        class="text-red-500">*</span></label>
+                <p-password formControlName="password" [toggleMask]="true" [feedback]="true"
+                    placeholder="Mínimo 8 caracteres" styleClass="w-full" [inputStyle]="{'width':'100%'}"
+                    promptLabel="Ingresa una contraseña" weakLabel="Débil" mediumLabel="Media" strongLabel="Fuerte">
+                </p-password>
+            </div>
+
+            <div class="field">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Confirmar Contraseña <span
+                        class="text-red-500">*</span></label>
+                <p-password formControlName="confirmPassword" [toggleMask]="true" [feedback]="false"
+                    placeholder="Repite la contraseña" styleClass="w-full" [inputStyle]="{'width':'100%'}">
+                </p-password>
+
+                <small *ngIf="userForm.hasError('passwordMismatch') && userForm.get('confirmPassword')?.touched"
+                    class="block text-red-500 mt-1 animate-pulse">
+                    <i class="pi pi-exclamation-circle mr-1"></i> Las contraseñas no coinciden.
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-end gap-2 pt-2">
+            <button pButton label="Cancelar" class="p-button-outlined p-button-secondary"
+                style="background-color: white !important; color: #4b5563 !important; border-color: #d1d5db !important;"
+                (click)="closeCreateUserDialog()">
+            </button>
+            <button pButton label="Crear Acceso" icon="pi pi-check"
+                class="bg-cafe-primary border-cafe-primary hover:bg-cafe-dark" (click)="submitCreateUser()"
+                [loading]="submitting">
             </button>
         </div>
     </ng-template>

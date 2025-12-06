@@ -1,1 +1,135 @@
-<p>categorias works!</p>
+<div class="page-container">
+    <div class="page-header">
+        <div class="header-content">
+            <h1 class="page-title">Categorías</h1>
+            <p class="page-subtitle">Gestión del catálogo de productos</p>
+        </div>
+        <div class="header-actions">
+            <button pButton label="Nueva Categoría" icon="pi pi-plus"
+                class="p-button-rounded bg-cafe-primary border-cafe-primary" (click)="openCreateDialog()">
+            </button>
+        </div>
+    </div>
+
+    <div class="filters-container mb-4">
+        <p-iconfield iconPosition="left" class="w-full">
+            <p-inputicon styleClass="pi pi-search" />
+            <input type="text" pInputText placeholder="Buscar categoría..." class="w-full search-input"
+                [(ngModel)]="searchValue" (input)="onGlobalFilter($event)" />
+        </p-iconfield>
+
+        <div class="filters-row mt-3 flex gap-3 flex-wrap">
+            <p-select [options]="estadoOptions" [(ngModel)]="selectedEstado" optionLabel="label"
+                placeholder="Filtrar por Estado" class="filter-dropdown" [showClear]="true"
+                (onChange)="filterByEstado()">
+            </p-select>
+
+            <button pButton label="Limpiar filtros" icon="pi pi-filter-slash" class="p-button-outlined custom-clear-btn"
+                (click)="clearFilters()">
+            </button>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <p-table #dt [value]="categorias" [loading]="loading" [paginator]="true" [rows]="10"
+            [globalFilterFields]="['nombre', 'descripcion']" [showCurrentPageReport]="true" responsiveLayout="scroll"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} categorías">
+
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="nombre">Nombre <p-sortIcon field="nombre"></p-sortIcon></th>
+                    <th pSortableColumn="descripcion">Descripción</th>
+                    <th pSortableColumn="estado" style="width: 150px;">Estado</th>
+                    <th style="width: 50px; text-align: center;"></th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-categoria>
+                <tr>
+                    <td>
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center border border-orange-100 text-cafe-primary">
+                                <i class="pi pi-tags text-lg"></i>
+                            </div>
+                            <span class="font-bold text-gray-800 text-base">{{ categoria.nombre }}</span>
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="text-gray-600 text-sm max-w-xs truncate" [pTooltip]="categoria.descripcion"
+                            tooltipPosition="top">
+                            {{ categoria.descripcion || 'Sin descripción' }}
+                        </div>
+                    </td>
+
+                    <td>
+                        <p-tag [value]="categoria.estado ? 'Activa' : 'Inactiva'"
+                            [severity]="categoria.estado ? 'success' : 'secondary'" styleClass="text-xs px-2"></p-tag>
+                    </td>
+
+                    <td style="text-align: center;">
+                        <button pButton type="button" icon="pi pi-ellipsis-v"
+                            class="p-button-text p-button-rounded p-button-plain action-menu-btn"
+                            (click)="toggleMenu(menu, $event, categoria)">
+                        </button>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="4" class="text-center p-6">
+                        <div class="flex flex-col items-center justify-center text-gray-400">
+                            <i class="pi pi-folder-open text-4xl mb-2 opacity-50"></i>
+                            <span>No se encontraron categorías.</span>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>
+
+<p-menu #menu [model]="menuItems" [popup]="true" appendTo="body"></p-menu>
+
+<p-dialog [(visible)]="showDialog" [modal]="true" [style]="{width: '100%', maxWidth: '500px'}"
+    [header]="modalMode === 'create' ? 'Nueva Categoría' : 'Editar Categoría'" styleClass="custom-modal"
+    [draggable]="false" [resizable]="false">
+
+    <div class="dialog-content pt-4" [formGroup]="categoriaForm">
+
+        <div class="field mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre de la Categoría <span
+                    class="text-red-500">*</span></label>
+            <input pInputText formControlName="nombre" class="w-full" placeholder="Ej: Bebidas Calientes" />
+            <small *ngIf="categoriaForm.get('nombre')?.invalid && categoriaForm.get('nombre')?.touched"
+                class="text-red-500">
+                El nombre es requerido (min 3 caracteres).
+            </small>
+        </div>
+
+        <div class="field mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+            <textarea pInputTextarea formControlName="descripcion" class="w-full" rows="3"
+                placeholder="Breve descripción de los productos en esta categoría..."></textarea>
+        </div>
+
+        <div class="field" *ngIf="modalMode === 'edit'">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+            <p-select formControlName="estado" [options]="estadoOptions" optionLabel="label" optionValue="value"
+                styleClass="w-full"></p-select>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-end gap-2 mt-4">
+            <button pButton label="Cancelar" class="p-button-outlined p-button-secondary custom-cancel-btn"
+                (click)="showDialog = false">
+            </button>
+            <button pButton [label]="modalMode === 'create' ? 'Guardar' : 'Actualizar'" icon="pi pi-check"
+                class="bg-cafe-primary border-cafe-primary" (click)="saveCategoria()" [loading]="submitting">
+            </button>
+        </div>
+    </ng-template>
+</p-dialog>

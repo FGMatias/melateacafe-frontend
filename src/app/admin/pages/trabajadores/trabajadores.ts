@@ -12,23 +12,18 @@ import { InputTextModule } from 'primeng/inputtext';
 import { Menu, MenuModule } from 'primeng/menu';
 import { PasswordModule } from 'primeng/password';
 import { SelectModule } from 'primeng/select';
-import { TableModule } from 'primeng/table';
+import { Table, TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
-import { TextareaModule } from 'primeng/textarea';
 import { TooltipModule } from 'primeng/tooltip';
 import Swal from 'sweetalert2';
 import { Cargo } from '../../../core/models/cargo';
 import { Rol } from '../../../core/models/rol';
 import { Trabajador } from '../../../core/models/trabajador';
+import { Usuario } from '../../../core/models/usuario';
 import { CargoService } from '../../../core/services/cargo';
 import { RolService } from '../../../core/services/rol';
 import { TrabajadorService } from '../../../core/services/trabajador';
 import { UsuarioService } from '../../../core/services/usuario';
-
-interface SelectOption {
-  label: string;
-  value: any;
-}
 
 @Component({
   selector: 'app-trabajadores',
@@ -49,43 +44,38 @@ interface SelectOption {
     MenuModule,
     IconFieldModule,
     InputIconModule,
-    DatePickerModule,
-    TextareaModule
+    DatePickerModule
   ],
   templateUrl: './trabajadores.html',
   styleUrl: './trabajadores.scss',
 })
 export class Trabajadores implements OnInit {
   trabajadores: Trabajador[] = [];
-  filteredTrabajadores: Trabajador[] = [];
+  cargos: Cargo[] = [];
   roles: Rol[] = [];
+
   loading: boolean = false;
   submitting: boolean = false;
+
+  searchValue: string = '';
+
+  showTrabajadorDialog: boolean = false;
   showCreateUserDialog: boolean = false;
-  selectedTrabajador: Trabajador | null = null;
+  showUserDialog: boolean = false;
+
+  modalMode: 'create' | 'edit' | 'view' = 'create';
+
+  trabajadorForm: FormGroup;
   userForm: FormGroup;
+
+  selectedTrabajador: Trabajador | null = null;
+  currentTrabajadorId: number | null = null;
+  selectedUser: Usuario | null = null;
+  selectedCargo: Cargo | null = null;
+
   menuItems: MenuItem[] = [];
   @ViewChild('actionMenu') actionMenu!: Menu;
-  trabajadorForm: FormGroup;
-  showTrabajadorDialog: boolean = false;
-  modalMode: 'create' | 'edit' | 'view' = 'create';
-  cargos: Cargo[] = [];
-  currentTrabajadorId: number | null = null;
-  selectedCargo: Cargo | null = null;
-  searchTerm: string = '';
-  selectedEstado: string = '';
-  selectedUsuario: string = '';
-
-  estadoOptions: SelectOption[] = [
-    { label: 'Todos', value: '' },
-    { label: 'Activos', value: 'true' },
-    { label: 'Inactivos', value: 'false' }
-  ];
-  usuarioOptions: SelectOption[] = [
-    { label: 'Todos', value: '' },
-    { label: 'Con Usuario', value: 'true' },
-    { label: 'Sin Usuario', value: 'false' }
-  ];
+  @ViewChild('dt') table!: Table;
 
   constructor(
     private trabajadorService: TrabajadorService,
@@ -95,22 +85,27 @@ export class Trabajadores implements OnInit {
     private fb: FormBuilder
   ) {
     this.userForm = this.fb.group({
-      username: ['', [Validators.required, Validators.minLength(4)]],
+      username: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(50)]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', [Validators.required]],
-      idRol: ['', [Validators.required]]
+      idRol: [null, [Validators.required]]
     }, {
       validators: this.passwordMatchValidator
     });
 
     this.trabajadorForm = this.fb.group({
-      nombres: ['', [Validators.required, Validators.minLength(2)]],
-      apellidoPaterno: ['', [Validators.required, Validators.minLength(2)]],
-      apellidoMaterno: [''],
+      nombres: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(255)]],
+      apellidoPaterno: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(255)]],
+      apellidoMaterno: ['', [Validators.maxLength(255)]],
       email: ['', [Validators.required, Validators.email]],
       telefono: ['', [Validators.required, Validators.pattern(/^[0-9]{9}$/)]],
-      numeroDocumento: ['', [Validators.required, Validators.minLength(8)]],
+      numeroDocumento: ['', [
+        Validators.required,
+        Validators.pattern(/^[0-9]{8}$/),
+        Validators.minLength(8),
+        Validators.maxLength(8)
+      ]],
       idCargo: [null, [Validators.required]],
       fechaContratacion: [new Date(), [Validators.required]],
       estado: [true]
@@ -120,13 +115,127 @@ export class Trabajadores implements OnInit {
   ngOnInit(): void {
     this.loadTrabajadores();
     this.loadRoles();
+    this.loadCargos();
+  }
+
+  loadTrabajadores(): void {
+    this.loading = true;
+    this.trabajadorService.getAll().subscribe({
+      next: (data) => {
+        console.log('Trabajadores cargados:', data);
+        this.trabajadores = data;
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error cargando trabajadores:', error);
+        this.loading = false;
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudieron cargar los trabajadores',
+          confirmButtonColor: '#6f4e37'
+        });
+      }
+    });
+  }
+
+  loadRoles(): void {
+    this.rolService.getAll().subscribe({
+      next: (data) => {
+        console.log('Roles cargados:', data);
+        this.roles = data;
+      },
+      error: (error) => {
+        console.error('Error cargando roles:', error);
+      }
+    });
   }
 
   loadCargos(): void {
-    this.cargoService.getAll().subscribe(data => this.cargos = data);
+    this.cargoService.getAll().subscribe({
+      next: (data) => {
+        console.log('Cargos cargados:', data);
+        this.cargos = data;
+      },
+      error: (error) => {
+        console.error('Error cargando cargos:', error);
+      }
+    });
   }
 
-  private patchForm(trabajador: Trabajador): void {
+  onGlobalFilter(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (this.table) {
+      this.table.filterGlobal(input.value, 'contains');
+    }
+  }
+
+  clearFilters(): void {
+    if (this.table) {
+      this.table.clear();
+    }
+
+    this.searchValue = '';
+    this.selectedCargo = null;
+  }
+
+  filterByCargo(): void {
+    if (this.table) {
+      const valorFiltro = this.selectedCargo ? this.selectedCargo.nombre : null;
+
+      this.table.filter(valorFiltro, 'cargo.nombre', 'equals');
+    }
+  }
+
+  getFullName(trabajador: Trabajador): string {
+    return `${trabajador.nombres} ${trabajador.apellidoPaterno} ${trabajador.apellidoMaterno || ''}`.trim();
+  }
+
+  getInitials(trabajador: Trabajador): string {
+    return `${trabajador.nombres.charAt(0)}${trabajador.apellidoPaterno.charAt(0)}`.toUpperCase();
+  }
+
+  private generateUsername(trabajador: Trabajador): string {
+    const primeraLetraNombre = trabajador.nombres.charAt(0).toLowerCase();
+    const apellido = trabajador.apellidoPaterno.toLowerCase().replace(/\s+/g, '');
+    return `${primeraLetraNombre}${apellido}`;
+  }
+
+  private passwordMatchValidator(group: FormGroup): { [key: string]: boolean } | null {
+    const password = group.get('password')?.value;
+    const confirmPassword = group.get('confirmPassword')?.value;
+    return password === confirmPassword ? null : { passwordMismatch: true };
+  }
+
+  openCreateDialog(): void {
+    this.modalMode = 'create';
+    this.currentTrabajadorId = null;
+    this.trabajadorForm.reset({
+      fechaContratacion: new Date(),
+      estado: true
+    });
+    this.showTrabajadorDialog = true;
+  }
+
+  openViewDialog(trabajador: Trabajador): void {
+    this.modalMode = 'view';
+    this.currentTrabajadorId = trabajador.idTrabajador;
+    this.patchTrabajadorForm(trabajador);
+    this.trabajadorForm.disable();
+    this.showTrabajadorDialog = true;
+  }
+
+  openEditDialog(trabajador: Trabajador): void {
+    this.modalMode = 'edit';
+    this.currentTrabajadorId = trabajador.idTrabajador;
+
+    this.patchTrabajadorForm(trabajador);
+    this.trabajadorForm.enable();
+
+    this.showTrabajadorDialog = true;
+  }
+
+  private patchTrabajadorForm(trabajador: Trabajador): void {
     this.trabajadorForm.patchValue({
       nombres: trabajador.nombres,
       apellidoPaterno: trabajador.apellidoPaterno,
@@ -140,7 +249,359 @@ export class Trabajadores implements OnInit {
     });
   }
 
-  toggleMenu(menu: Menu, event: any, trabajador: Trabajador) {
+  saveTrabajador(): void {
+    console.log('Estado del formulario:', {
+      valid: this.trabajadorForm.valid,
+      invalid: this.trabajadorForm.invalid,
+      errors: this.getFormErrors(),
+      values: this.trabajadorForm.value
+    });
+
+    if (this.trabajadorForm.invalid) {
+      this.trabajadorForm.markAllAsTouched();
+
+      const errorFields = this.getInvalidFields();
+      console.error('Campos inválidos:', errorFields);
+
+      Swal.fire({
+        icon: 'warning',
+        title: 'Formulario incompleto',
+        html: `Por favor completa correctamente los siguientes campos:<br><br><strong>${errorFields.join('<br>')}</strong>`,
+        confirmButtonColor: '#6f4e37'
+      });
+      return;
+    }
+
+    this.submitting = true;
+    const formValue = this.trabajadorForm.getRawValue();
+
+    const trabajadorDTO = {
+      ...formValue,
+      fechaContratacion: this.formatDateForBackend(formValue.fechaContratacion)
+    };
+
+    console.log('Enviando al backend:', trabajadorDTO);
+
+    const request$ = this.modalMode === 'create'
+      ? this.trabajadorService.create(trabajadorDTO)
+      : this.trabajadorService.update(this.currentTrabajadorId!, trabajadorDTO);
+
+    request$.subscribe({
+      next: (response) => {
+        console.log('Trabajador guardado:', response);
+        this.submitting = false;
+        this.showTrabajadorDialog = false;
+        this.loadTrabajadores();
+
+        Swal.fire({
+          icon: 'success',
+          title: '¡Éxito!',
+          text: `Trabajador ${this.modalMode === 'create' ? 'creado' : 'actualizado'} correctamente`,
+          confirmButtonColor: '#6f4e37',
+          timer: 2000,
+          timerProgressBar: true
+        });
+      },
+      error: (error) => {
+        this.submitting = false;
+        console.error('Error guardando trabajador:', error);
+
+        let errorMessage = 'No se pudo guardar el trabajador';
+        if (error.error?.message) {
+          errorMessage = error.error.message;
+        } else if (error.error) {
+          errorMessage = typeof error.error === 'string' ? error.error : errorMessage;
+        }
+
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: errorMessage,
+          confirmButtonColor: '#6f4e37'
+        });
+      }
+    });
+  }
+
+  private getFormErrors(): any {
+    const errors: any = {};
+    Object.keys(this.trabajadorForm.controls).forEach(key => {
+      const control = this.trabajadorForm.get(key);
+      if (control && control.errors) {
+        errors[key] = control.errors;
+      }
+    });
+    return errors;
+  }
+
+  private getInvalidFields(): string[] {
+    const invalidFields: string[] = [];
+    const fieldNames: { [key: string]: string } = {
+      nombres: 'Nombres',
+      apellidoPaterno: 'Apellido Paterno',
+      apellidoMaterno: 'Apellido Materno',
+      email: 'Email',
+      telefono: 'Teléfono',
+      numeroDocumento: 'DNI',
+      idCargo: 'Cargo',
+      fechaContratacion: 'Fecha de Contratación',
+      estado: 'Estado'
+    };
+
+    Object.keys(this.trabajadorForm.controls).forEach(key => {
+      const control = this.trabajadorForm.get(key);
+      if (control && control.invalid) {
+        invalidFields.push(fieldNames[key] || key);
+      }
+    });
+
+    return invalidFields;
+  }
+
+  private formatDateForBackend(date: Date): string {
+    if (!date) return '';
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+
+  deleteTrabajador(trabajador: Trabajador): void {
+    if (trabajador.tieneUsuario) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'No se puede eliminar',
+        text: 'Este trabajador tiene un usuario asociado. Primero debes eliminar su usuario.',
+        confirmButtonColor: '#6f4e37'
+      });
+      return;
+    }
+
+    Swal.fire({
+      title: '¿Estás seguro?',
+      html: `Se eliminará al trabajador:<br><strong>${this.getFullName(trabajador)}</strong><br><br>Esta acción no se puede deshacer.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6f4e37',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.trabajadorService.delete(trabajador.idTrabajador).subscribe({
+          next: () => {
+            console.log('Trabajador eliminado');
+            Swal.fire({
+              icon: 'success',
+              title: 'Eliminado',
+              text: 'El trabajador ha sido eliminado correctamente',
+              confirmButtonColor: '#6f4e37',
+              timer: 2000,
+              timerProgressBar: true
+            });
+            this.loadTrabajadores();
+          },
+          error: (error) => {
+            console.error('Error eliminando trabajador:', error);
+            let errorMessage = 'No se pudo eliminar el trabajador';
+            if (error.error?.message) {
+              errorMessage = error.error.message;
+            }
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: errorMessage,
+              confirmButtonColor: '#6f4e37'
+            });
+          }
+        });
+      }
+    });
+  }
+
+  createUserForEmployee(trabajador: Trabajador): void {
+    this.selectedTrabajador = trabajador;
+    this.userForm.reset();
+    this.userForm.patchValue({
+      email: trabajador.email,
+      username: this.generateUsername(trabajador)
+    });
+    this.showCreateUserDialog = true;
+  }
+
+  submitCreateUser(): void {
+    if (this.userForm.invalid || !this.selectedTrabajador) {
+      this.userForm.markAllAsTouched();
+      Swal.fire({
+        icon: 'warning',
+        title: 'Formulario incompleto',
+        text: 'Por favor completa todos los campos requeridos correctamente',
+        confirmButtonColor: '#6f4e37'
+      });
+      return;
+    }
+
+    if (this.userForm.hasError('passwordMismatch')) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Las contraseñas no coinciden',
+        text: 'Por favor verifica que las contraseñas sean iguales',
+        confirmButtonColor: '#6f4e37'
+      });
+      return;
+    }
+
+    this.submitting = true;
+
+    const userData = {
+      username: this.userForm.value.username,
+      email: this.userForm.value.email,
+      password: this.userForm.value.password,
+      idRol: this.userForm.value.idRol,
+      idTrabajador: this.selectedTrabajador.idTrabajador
+    };
+
+    this.usuarioService.create(userData).subscribe({
+      next: (response) => {
+        console.log('Usuario creado:', response);
+        this.submitting = false;
+        this.closeCreateUserDialog();
+
+        Swal.fire({
+          icon: 'success',
+          title: '¡Usuario creado!',
+          text: 'El usuario ha sido creado exitosamente',
+          confirmButtonColor: '#6f4e37',
+          timer: 2000,
+          timerProgressBar: true
+        });
+
+        this.loadTrabajadores();
+      },
+      error: (error) => {
+        this.submitting = false;
+        console.error('Error creando usuario:', error);
+
+        let errorMessage = 'No se pudo crear el usuario';
+        if (error.error?.message) {
+          errorMessage = error.error.message;
+        } else if (error.error) {
+          errorMessage = typeof error.error === 'string' ? error.error : errorMessage;
+        }
+
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: errorMessage,
+          confirmButtonColor: '#6f4e37'
+        });
+      }
+    });
+  }
+
+  closeCreateUserDialog(): void {
+    this.showCreateUserDialog = false;
+    this.selectedTrabajador = null;
+    this.userForm.reset();
+  }
+
+  viewUser(trabajador: Trabajador): void {
+    this.usuarioService.getAll().subscribe({
+      next: (usuarios) => {
+        const usuario = usuarios.find(u => u.trabajador?.idTrabajador === trabajador.idTrabajador);
+
+        if (usuario) {
+          this.selectedUser = usuario;
+          this.selectedTrabajador = trabajador;
+          this.showUserDialog = true;
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Usuario no encontrado',
+            text: 'No se pudo encontrar el usuario asociado',
+            confirmButtonColor: '#6f4e37'
+          });
+        }
+      },
+      error: (error) => {
+        console.error('Error buscando usuario:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudo obtener la información del usuario',
+          confirmButtonColor: '#6f4e37'
+        });
+      }
+    });
+  }
+
+  deleteUser(trabajador: Trabajador): void {
+    Swal.fire({
+      title: '¿Quitar acceso al sistema?',
+      html: `Se eliminará el usuario de:<br><strong>${this.getFullName(trabajador)}</strong><br><br>El trabajador seguirá existiendo pero sin acceso al sistema.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6f4e37',
+      confirmButtonText: 'Sí, quitar acceso',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.usuarioService.getAll().subscribe({
+          next: (usuarios) => {
+            const usuario = usuarios.find(u => u.trabajador?.idTrabajador === trabajador.idTrabajador);
+
+            if (usuario) {
+              this.usuarioService.delete(usuario.idUsuario).subscribe({
+                next: () => {
+                  console.log('Usuario eliminado');
+                  Swal.fire({
+                    icon: 'success',
+                    title: 'Acceso eliminado',
+                    text: 'El usuario ha sido eliminado correctamente',
+                    confirmButtonColor: '#6f4e37',
+                    timer: 2000,
+                    timerProgressBar: true
+                  });
+                  this.loadTrabajadores();
+                },
+                error: (error) => {
+                  console.error('Error eliminando usuario:', error);
+                  Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo eliminar el usuario',
+                    confirmButtonColor: '#6f4e37'
+                  });
+                }
+              });
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: 'Usuario no encontrado',
+                text: 'No se encontró el usuario asociado a este trabajador',
+                confirmButtonColor: '#6f4e37'
+              });
+            }
+          },
+          error: (error) => {
+            console.error('Error buscando usuario:', error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'No se pudo obtener la información del usuario',
+              confirmButtonColor: '#6f4e37'
+            });
+          }
+        });
+      }
+    });
+  }
+
+  toggleMenu(menu: Menu, event: any, trabajador: Trabajador): void {
     this.selectedTrabajador = trabajador;
 
     this.menuItems = [
@@ -160,11 +621,11 @@ export class Trabajadores implements OnInit {
         ]
       },
       {
-        label: 'Seguridad',
+        label: 'Acceso al Sistema',
         items: [
           {
             label: 'Crear Usuario',
-            icon: 'pi pi-key',
+            icon: 'pi pi-user-plus',
             visible: !trabajador.tieneUsuario,
             command: () => this.createUserForEmployee(trabajador)
           },
@@ -176,11 +637,11 @@ export class Trabajadores implements OnInit {
           },
           {
             label: 'Quitar Acceso',
-            icon: 'pi pi-lock-open',
+            icon: 'pi pi-lock',
             visible: !!trabajador.tieneUsuario,
             command: () => this.deleteUser(trabajador)
           }
-        ]
+        ].filter(item => item.visible !== false)
       },
       {
         separator: true
@@ -198,262 +659,5 @@ export class Trabajadores implements OnInit {
     ];
 
     menu.toggle(event);
-  }
-
-  loadTrabajadores(): void {
-    this.loading = true;
-    this.trabajadorService.getAll().subscribe({
-      next: (data) => {
-        this.trabajadores = data;
-        this.filteredTrabajadores = data;
-        this.loading = false;
-        this.cargos;
-      },
-      error: (error) => {
-        console.error('Error cargando trabajadores:', error);
-        this.loading = false;
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'No se pudieron cargar los trabajadores'
-        });
-      }
-    });
-  }
-
-  loadRoles(): void {
-    this.rolService.getAll().subscribe({
-      next: (data) => {
-        this.roles = data;
-      },
-      error: (error) => {
-        console.error('Error cargando roles:', error);
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'No se pudieron cargar los roles'
-        });
-      }
-    });
-  }
-
-  onSearch(): void {
-    this.applyFilters();
-  }
-
-  onFilterChange(): void {
-    this.applyFilters();
-  }
-
-  applyFilters(): void {
-    let filtered = [...this.trabajadores];
-
-    if (this.searchTerm) {
-      const term = this.searchTerm.toLowerCase();
-      filtered = filtered.filter(t =>
-        this.getFullName(t).toLowerCase().includes(term) ||
-        t.email.toLowerCase().includes(term) ||
-        t.numeroDocumento.toLowerCase().includes(term) ||
-        t.telefono.toLowerCase().includes(term)
-      );
-    }
-
-    if (this.cargos) {
-      filtered = filtered.filter(t => t.cargo.nombre === this.selectedCargo?.nombre);
-    }
-
-    if (this.selectedEstado !== '') {
-      const estado = this.selectedEstado === 'true';
-      filtered = filtered.filter(t => t.estado === estado);
-    }
-
-    if (this.selectedUsuario !== '') {
-      const tieneUsuario = this.selectedUsuario === 'true';
-      filtered = filtered.filter(t => t.tieneUsuario === tieneUsuario);
-    }
-
-    this.filteredTrabajadores = filtered;
-  }
-
-  clearFilters(): void {
-    this.searchTerm = '';
-    this.selectedEstado = '';
-    this.selectedUsuario = '';
-    this.filteredTrabajadores = [...this.trabajadores];
-  }
-
-  getFullName(trabajador: Trabajador): string {
-    return `${trabajador.nombres} ${trabajador.apellidoPaterno} ${trabajador.apellidoMaterno}`;
-  }
-
-  getInitials(trabajador: Trabajador): string {
-    return `${trabajador.nombres.charAt(0)}${trabajador.apellidoPaterno.charAt(0)}`;
-  }
-
-  openCreateDialog(): void {
-    this.modalMode = 'create';
-    this.currentTrabajadorId = null;
-    this.trabajadorForm.reset({ fechaContratacion: new Date(), estado: true });
-    this.trabajadorForm.enable();
-    this.showTrabajadorDialog = true;
-  }
-
-  openEditDialog(trabajador: Trabajador): void {
-    this.modalMode = 'edit';
-    this.currentTrabajadorId = trabajador.idTrabajador;
-    this.trabajadorForm.enable();
-    this.patchForm(trabajador);
-    this.showTrabajadorDialog = true;
-  }
-
-  openViewDialog(trabajador: Trabajador): void {
-    this.modalMode = 'view';
-    this.patchForm(trabajador);
-    this.trabajadorForm.disable();
-    this.showTrabajadorDialog = true;
-  }
-
-  saveTrabajador(): void {
-    if (this.trabajadorForm.invalid) {
-      this.trabajadorForm.markAllAsTouched();
-      return;
-    }
-
-    this.submitting = true;
-    const formValue = this.trabajadorForm.getRawValue();
-
-    const trabajadorDTO = {
-      ...formValue,
-      fechaContratacion: formValue.fechaContratacion.toISOString().split('T')[0]
-    };
-
-    const request$ = this.modalMode === 'create'
-      ? this.trabajadorService.create(trabajadorDTO)
-      : this.trabajadorService.update(this.currentTrabajadorId!, trabajadorDTO);
-
-    request$.subscribe({
-      next: () => {
-        this.submitting = false;
-        this.showTrabajadorDialog = false;
-        this.loadTrabajadores();
-        Swal.fire('Éxito', `Trabajador ${this.modalMode === 'create' ? 'creado' : 'actualizado'} correctamente`, 'success');
-      },
-      error: (err) => {
-        this.submitting = false;
-        console.error(err);
-        Swal.fire('Error', 'No se pudo guardar el trabajador', 'error');
-      }
-    });
-  }
-
-  createUserForEmployee(trabajador: Trabajador): void {
-    this.selectedTrabajador = trabajador;
-    this.userForm.patchValue({
-      email: trabajador.email
-    });
-    this.showCreateUserDialog = true;
-  }
-
-  viewUser(trabajador: Trabajador): void {
-    Swal.fire({
-      title: 'Usuario del Trabajador',
-      text: `Este trabajador ya tiene un usuario asociado. Puede ver los detalles en la sección de Usuarios.`,
-      icon: 'info',
-      confirmButtonColor: '#6f4e37',
-      confirmButtonText: 'Entendido'
-    });
-  }
-
-  closeCreateUserDialog(): void {
-    this.showCreateUserDialog = false;
-    this.selectedTrabajador = null;
-    this.userForm.reset();
-  }
-
-  submitCreateUser(): void {
-    if (this.userForm.invalid || !this.selectedTrabajador) {
-      return;
-    }
-
-    this.submitting = true;
-
-    const userData = {
-      username: this.userForm.value.username,
-      email: this.userForm.value.email,
-      password: this.userForm.value.password,
-      idRol: this.userForm.value.idRol,
-      idTrabajador: this.selectedTrabajador.idTrabajador
-    };
-
-    this.usuarioService.create(userData).subscribe({
-      next: (response) => {
-        this.submitting = false;
-        this.closeCreateUserDialog();
-        Swal.fire({
-          icon: 'success',
-          title: '¡Usuario creado!',
-          text: 'El usuario ha sido creado exitosamente',
-          confirmButtonColor: '#6f4e37'
-        });
-        this.loadTrabajadores();
-      },
-      error: (error) => {
-        this.submitting = false;
-        console.error('Error creando usuario:', error);
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: error.error?.error || 'No se pudo crear el usuario'
-        });
-      }
-    });
-  }
-
-  passwordMatchValidator(group: FormGroup): { [key: string]: boolean } | null {
-    const password = group.get('password')?.value;
-    const confirmPassword = group.get('confirmPassword')?.value;
-
-    if (password !== confirmPassword) {
-      return { passwordMismatch: true };
-    }
-
-    return null;
-  }
-
-  deleteTrabajador(trabajador: Trabajador): void {
-    Swal.fire({
-      title: '¿Estás seguro?',
-      text: `Se eliminará al trabajador ${this.getFullName(trabajador)}. Esta acción no se puede deshacer.`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.trabajadorService.delete(trabajador.idTrabajador).subscribe({
-          next: () => {
-            Swal.fire('Eliminado', 'El trabajador ha sido eliminado.', 'success');
-            this.loadTrabajadores();
-          },
-          error: () => Swal.fire('Error', 'No se pudo eliminar el trabajador.', 'error')
-        });
-      }
-    });
-  }
-
-  deleteUser(trabajador: Trabajador): void {
-    Swal.fire({
-      title: '¿Eliminar acceso?',
-      text: `Se quitará el acceso al sistema para ${this.getFullName(trabajador)}.`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, quitar acceso'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        Swal.fire('Info', 'Lógica de eliminación de usuario pendiente', 'info');
-      }
-    });
   }
 }

@@ -60,6 +60,10 @@ export const routes: Routes = [
                 loadComponent: () => import('./admin/pages/pedidos/pedidos').then(m => m.Pedidos)
             },
             {
+                path: 'mesas',
+                loadComponent: () => import('./admin/pages/mesas/mesas').then(m => m.Mesas)
+            },
+            {
                 path: 'reservas',
                 loadComponent: () => import('./admin/pages/reservas/reservas').then(m => m.Reservas)
             }

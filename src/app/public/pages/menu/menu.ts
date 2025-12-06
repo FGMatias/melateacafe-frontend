@@ -36,7 +36,7 @@ export class Menu implements OnInit {
     private categoriaService: CategoriaProductoService,
     private productoService: ProductoService,
     private carritoService: CarritoService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.cargarCategorias();
@@ -45,7 +45,7 @@ export class Menu implements OnInit {
 
   cargarCategorias(): void {
     this.loadingCategorias = true;
-    this.categoriaService.getCategorias().subscribe({
+    this.categoriaService.getAll().subscribe({
       next: (categorias) => {
         this.categorias = categorias.filter((c) => c.estado);
         this.loadingCategorias = false;
