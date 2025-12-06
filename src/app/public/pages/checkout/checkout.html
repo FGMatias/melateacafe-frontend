@@ -1,0 +1,222 @@
+<section class="min-h-screen bg-gray-50 py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="mb-8">
+            <button (click)="volver()"
+                class="flex items-center gap-2 text-cafe-dark hover:text-cafe-brown transition-colors mb-4">
+                <i class="pi pi-arrow-left"></i>
+                <span class="font-medium">Volver al menú</span>
+            </button>
+            <h1 class="text-4xl font-serif font-bold text-cafe-dark">Finalizar Pedido</h1>
+            <p class="text-gray-600 mt-2">Completa tus datos para confirmar tu pedido</p>
+        </div>
+
+        @if (loadingData) {
+        <div class="flex justify-center items-center h-96">
+            <i class="pi pi-spin pi-spinner text-4xl text-cafe-primary"></i>
+        </div>
+        } @else {
+        <form [formGroup]="checkoutForm" (ngSubmit)="procesarPedido()">
+            <div class="grid lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h2 class="text-2xl font-serif font-bold text-cafe-dark mb-4">
+                            <i class="pi pi-shopping-bag mr-2"></i>
+                            Tipo de Pedido
+                        </h2>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            @for (tipo of tiposPedido; track tipo.idTipoPedido) {
+                            @if (tipo.idTipoPedido !== 1 && tipo.idTipoPedido !== 4) {
+                            <label class="relative cursor-pointer">
+                                <input type="radio" formControlName="idTipoPedido" [value]="tipo.idTipoPedido"
+                                    class="peer sr-only" />
+                                <div
+                                    class="border-2 border-gray-300 rounded-lg p-4 text-center transition-all peer-checked:border-cafe-dark peer-checked:bg-cafe-light hover:border-cafe-brown">
+                                    <i class="pi text-2xl mb-2 block" [ngClass]="{
+                                                       'pi-motorcycle': tipo.idTipoPedido === 2,
+                                                       'pi-shopping-bag': tipo.idTipoPedido === 3
+                                                   }"></i>
+                                    <span class="font-medium">{{ tipo.nombre }}</span>
+                                </div>
+                            </label>
+                            }
+                            }
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h2 class="text-2xl font-serif font-bold text-cafe-dark mb-4">
+                            <i class="pi pi-user mr-2"></i>
+                            Tus Datos
+                        </h2>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Tipo de Documento *
+                                </label>
+                                <p-select formControlName="idTipoDocumento" [options]="tiposDocumento"
+                                    optionLabel="nombre" optionValue="idTipoDocumento" placeholder="Selecciona un tipo"
+                                    styleClass="w-full"></p-select>
+                            </div>
+
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    {{ getTipoDocumentoLabel() }} *
+                                </label>
+                                <input pInputText type="text" formControlName="numeroDocumento"
+                                    placeholder="Ingresa tu número de documento" class="w-full" />
+                                @if (checkoutForm.get('numeroDocumento')?.invalid &&
+                                checkoutForm.get('numeroDocumento')?.touched) {
+                                <small class="text-red-500 mt-1 block">
+                                    Ingresa un número de documento válido
+                                </small>
+                                }
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Nombres *
+                                </label>
+                                <input pInputText type="text" formControlName="nombres"
+                                    placeholder="Ingresa tus nombres" class="w-full" />
+                                @if (checkoutForm.get('nombres')?.invalid && checkoutForm.get('nombres')?.touched) {
+                                <small class="text-red-500 mt-1 block">
+                                    Los nombres son requeridos
+                                </small>
+                                }
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Apellido Paterno *
+                                </label>
+                                <input pInputText type="text" formControlName="apellidoPaterno"
+                                    placeholder="Ingresa tu apellido paterno" class="w-full" />
+                                @if (checkoutForm.get('apellidoPaterno')?.invalid &&
+                                checkoutForm.get('apellidoPaterno')?.touched) {
+                                <small class="text-red-500 mt-1 block">
+                                    El apellido paterno es requerido
+                                </small>
+                                }
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Apellido Materno
+                                </label>
+                                <input pInputText type="text" formControlName="apellidoMaterno"
+                                    placeholder="Ingresa tu apellido materno (opcional)" class="w-full" />
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Teléfono *
+                                </label>
+                                <input pInputText type="tel" formControlName="telefono" placeholder="999888777"
+                                    maxlength="9" class="w-full" />
+                                @if (checkoutForm.get('telefono')?.invalid && checkoutForm.get('telefono')?.touched) {
+                                <small class="text-red-500 mt-1 block">
+                                    Ingresa un número de 9 dígitos
+                                </small>
+                                }
+                            </div>
+
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Correo Electrónico *
+                                </label>
+                                <input pInputText type="email" formControlName="email"
+                                    placeholder="tucorreo@ejemplo.com" class="w-full" />
+                                @if (checkoutForm.get('email')?.invalid && checkoutForm.get('email')?.touched) {
+                                <small class="text-red-500 mt-1 block">
+                                    Ingresa un correo electrónico válido
+                                </small>
+                                }
+                            </div>
+
+                            @if (checkoutForm.get('idTipoPedido')?.value === 2) {
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="pi pi-map-marker mr-1"></i>
+                                    Dirección de Entrega *
+                                </label>
+                                <input pInputText type="text" formControlName="direccion"
+                                    placeholder="Av. Ejemplo 123, Distrito, Lima" class="w-full" />
+                                @if (checkoutForm.get('direccion')?.invalid && checkoutForm.get('direccion')?.touched) {
+                                <small class="text-red-500 mt-1 block">
+                                    La dirección es requerida para delivery
+                                </small>
+                                }
+                            </div>
+                            }
+
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Observaciones (opcional)
+                                </label>
+                                <textarea pTextarea formControlName="observaciones"
+                                    placeholder="Ej: Sin azúcar, sin cebolla, etc." rows="3" class="w-full"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-lg shadow-md p-6 sticky top-6">
+                        <h2 class="text-2xl font-serif font-bold text-cafe-dark mb-4">
+                            <i class="pi pi-shopping-cart mr-2"></i>
+                            Resumen del Pedido
+                        </h2>
+
+                        <div class="space-y-3 mb-4 max-h-64 overflow-y-auto">
+                            @for (item of items; track item.producto.idProducto) {
+                            <div class="flex items-start gap-3 pb-3 border-b border-gray-200 last:border-0">
+                                <img [src]="item.producto.imagenUrl" [alt]="item.producto.nombre"
+                                    class="w-16 h-16 rounded-lg object-cover" />
+                                <div class="flex-1">
+                                    <h4 class="font-medium text-cafe-dark">{{ item.producto.nombre }}</h4>
+                                    <p class="text-sm text-gray-600">Cantidad: {{ item.cantidad }}</p>
+                                    <p class="text-sm font-bold text-cafe-primary">
+                                        S/. {{ (item.producto.precio * item.cantidad).toFixed(2) }}
+                                    </p>
+                                </div>
+                            </div>
+                            }
+                        </div>
+
+                        <div class="space-y-2 pt-4 border-t border-gray-300">
+                            <div class="flex justify-between text-gray-700">
+                                <span>Subtotal:</span>
+                                <span class="font-medium">S/. {{ subtotal.toFixed(2) }}</span>
+                            </div>
+
+                            @if (deliveryCosto > 0) {
+                            <div class="flex justify-between text-gray-700">
+                                <span>Delivery:</span>
+                                <span class="font-medium">S/. {{ deliveryCosto.toFixed(2) }}</span>
+                            </div>
+                            }
+
+                            <div
+                                class="flex justify-between text-xl font-bold text-cafe-dark pt-2 border-t border-gray-300">
+                                <span>Total:</span>
+                                <span>S/. {{ total.toFixed(2) }}</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-6">
+                            <p-button type="submit" label="Confirmar Pedido" icon="pi pi-check" [loading]="submitting"
+                                [disabled]="submitting || items.length === 0" styleClass="w-full"
+                                [style]="{'background-color': '#6f4e37', 'border-color': '#6f4e37', 'width': '100%'}"></p-button>
+
+                            <p class="text-xs text-gray-500 mt-3 text-center">
+                                Al confirmar, aceptas nuestros términos y condiciones
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        }
+    </div>
+</section>

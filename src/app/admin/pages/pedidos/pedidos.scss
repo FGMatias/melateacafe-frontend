@@ -1,0 +1,100 @@
+$cafe-primary: #6f4e37;
+$cafe-dark: #3e2723;
+$bg-light: #ffffff;
+$border-color: #e5e7eb;
+$gray-light: #f3f4f6;
+
+.page-container {
+    padding: 0;
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        margin-bottom: 2rem;
+
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: $cafe-dark;
+            margin: 0;
+        }
+
+        .page-subtitle {
+            color: #64748b;
+            font-size: 0.95rem;
+            margin: 0;
+        }
+    }
+}
+
+.filters-container {
+    background: $bg-light;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid $border-color;
+
+    .search-input {
+        border-radius: 8px;
+        padding: 0.75rem;
+
+        &:focus {
+            border-color: $cafe-primary;
+            box-shadow: 0 0 0 1px $cafe-primary;
+        }
+    }
+}
+
+::ng-deep .p-datatable {
+    .p-datatable-header {
+        background: transparent;
+        border: none;
+    }
+
+    .p-datatable-thead>tr>th {
+        background: #fcfbf9;
+        color: $cafe-dark;
+        font-weight: 600;
+        border-bottom: 2px solid rgba($cafe-primary, 0.1);
+        padding: 1rem;
+    }
+
+    .p-datatable-tbody>tr>td {
+        padding: 1rem;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: middle;
+    }
+}
+
+.action-menu-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    background-color: $gray-light !important;
+    color: #6b7280 !important;
+
+    &:hover {
+        background-color: #e5e7eb !important;
+        color: $cafe-primary !important;
+    }
+}
+
+::ng-deep .ticket-dialog {
+    .p-dialog-header {
+        background-color: #fff;
+        border-bottom: 1px solid #f3f4f6;
+        padding: 1rem 1.5rem;
+    }
+
+    .p-dialog-content {
+        padding: 1.5rem;
+        background-color: #fff;
+    }
+
+    .p-dialog-footer {
+        padding: 0.5rem 1.5rem 1.5rem;
+        border-top: none;
+        background-color: #fff;
+    }
+}

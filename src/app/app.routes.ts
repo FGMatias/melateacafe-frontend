@@ -18,6 +18,10 @@ export const routes: Routes = [
             {
                 path: 'menu',
                 loadComponent: () => import('./public/pages/menu/menu').then(m => m.Menu)
+            },
+            {
+                path: 'checkout',
+                loadComponent: () => import('./public/pages/checkout/checkout').then(m => m.Checkout)
             }
         ]
     },

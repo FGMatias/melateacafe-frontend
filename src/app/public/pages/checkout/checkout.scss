@@ -1,0 +1,123 @@
+::ng-deep {
+    .p-select {
+        width: 100%;
+
+        .p-select-label {
+            padding: 0.75rem 1rem;
+        }
+
+        &.p-variant-filled {
+            background-color: #ffffff;
+        }
+
+        &:not(.p-disabled):hover {
+            border-color: var(--cafe-brown);
+        }
+
+        &:not(.p-disabled).p-focus {
+            outline: 0 none;
+            outline-offset: 0;
+            box-shadow: 0 0 0 0.2rem rgba(111, 78, 55, 0.25);
+            border-color: var(--cafe-dark);
+        }
+    }
+
+    .p-inputtext {
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        border-radius: 6px;
+        border: 1px solid #d1d5db;
+        transition: all 0.2s;
+
+        &:enabled:hover {
+            border-color: var(--cafe-brown);
+        }
+
+        &:enabled:focus {
+            outline: 0 none;
+            outline-offset: 0;
+            box-shadow: 0 0 0 0.2rem rgba(111, 78, 55, 0.25);
+            border-color: var(--cafe-dark);
+        }
+
+        &.ng-invalid.ng-touched {
+            border-color: #dc2626;
+        }
+    }
+
+    .p-textarea {
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        border-radius: 6px;
+        border: 1px solid #d1d5db;
+        transition: all 0.2s;
+        font-family: inherit;
+
+        &:enabled:hover {
+            border-color: var(--cafe-brown);
+        }
+
+        &:enabled:focus {
+            outline: 0 none;
+            outline-offset: 0;
+            box-shadow: 0 0 0 0.2rem rgba(111, 78, 55, 0.25);
+            border-color: var(--cafe-dark);
+        }
+    }
+
+    .p-button {
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+        padding: 0.875rem 1.5rem;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+
+        &:not(.p-disabled):hover {
+            background-color: var(--cafe-brown) !important;
+            border-color: var(--cafe-brown) !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(62, 39, 35, 0.2);
+        }
+
+        &:not(.p-disabled):active {
+            transform: translateY(0);
+        }
+    }
+}
+
+input[type="radio"]:checked+div {
+    background-color: rgba(111, 78, 55, 0.1);
+}
+
+.pi-spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.overflow-y-auto {
+    &::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: #d1d5db;
+        border-radius: 10px;
+
+        &:hover {
+            background: #9ca3af;
+        }
+    }
+}

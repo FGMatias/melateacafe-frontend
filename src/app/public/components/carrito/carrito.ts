@@ -1,6 +1,6 @@
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { DrawerModule } from 'primeng/drawer';
 import { CarritoService } from '../../../core/services/carrito';
@@ -21,7 +21,10 @@ export class CarritoComponent {
   @Input() visible: boolean = false;
   @Output() visibleChange = new EventEmitter<boolean>();
 
-  constructor(public carritoService: CarritoService) { }
+  constructor(
+    public carritoService: CarritoService,
+    private router: Router
+  ) { }
 
   onHide(): void {
     this.visible = false;
@@ -46,5 +49,10 @@ export class CarritoComponent {
 
   vaciarCarrito(): void {
     this.carritoService.vaciarCarrito();
+  }
+
+  irACheckout(): void {
+    this.onHide(); // Cerrar el drawer primero
+    this.router.navigate(['/checkout']); // Navegar al checkout
   }
 }

@@ -87,8 +87,8 @@
             <p class="text-xl">No hay productos disponibles en este momento</p>
         </div>
         } @else {
-        <p-carousel [value]="productosDestacados" [numVisible]="4" [numScroll]="1"
-            [responsiveOptions]="responsiveOptions">
+        <p-carousel [value]="productosDestacados" [numVisible]="3" [numScroll]="1" [circular]="true"
+            [autoplayInterval]="5000" [showIndicators]="false" [showNavigators]="true">>
             <ng-template let-producto pTemplate="item">
                 <div class="px-3">
                     <div

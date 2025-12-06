@@ -4,6 +4,20 @@ import { EstadoPedido } from "./estado-pedido";
 import { Mesa } from "./mesa";
 import { TipoPedido } from "./tipo-pedido";
 
+export interface Pedido {
+    idPedido: number;
+    mesa: Mesa | null;
+    cliente: Cliente;
+    estadoPedido: EstadoPedido;
+    tipoPedido: TipoPedido;
+    subtotal: number;
+    deliveryCosto: number | null;
+    total: number;
+    direccionEntrega: string | null;
+    observaciones: string | null;
+    fechaCreacion: string;
+}
+
 export interface PedidoResponse {
     idPedido: number;
     mesa?: Mesa;

@@ -1,1 +1,148 @@
-<p>pedidos works!</p>
+<div class="page-container">
+    <div class="page-header">
+        <div class="header-content">
+            <h1 class="page-title">Pedidos</h1>
+            <p class="page-subtitle">Gestión de órdenes y despachos</p>
+        </div>
+        <div class="header-actions">
+            <button pButton icon="pi pi-refresh" class="p-button-rounded p-button-outlined custom-refresh-btn"
+                (click)="loadPedidos()" pTooltip="Refrescar lista">
+            </button>
+        </div>
+    </div>
+
+    <div class="filters-container mb-4">
+        <p-iconfield iconPosition="left" class="w-full md:w-auto">
+            <p-inputicon styleClass="pi pi-search" />
+            <input type="text" pInputText placeholder="Buscar pedido, cliente..." class="w-full search-input"
+                [(ngModel)]="searchValue" (input)="onGlobalFilter($event)" />
+        </p-iconfield>
+
+    </div>
+
+    <div class="table-container">
+        <p-table #dt [value]="pedidos" [loading]="loading" [paginator]="true" [rows]="10"
+            [globalFilterFields]="['cliente.nombres', 'cliente.numeroDocumento', 'idPedido']" responsiveLayout="scroll"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} pedidos">
+
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="idPedido" style="width:100px">Ticket # <p-sortIcon
+                            field="idPedido"></p-sortIcon></th>
+                    <th pSortableColumn="fecha">Fecha <p-sortIcon field="fecha"></p-sortIcon></th>
+                    <th pSortableColumn="cliente.nombres">Cliente</th>
+                    <th pSortableColumn="tipoPedido.nombre">Tipo</th>
+                    <th pSortableColumn="total">Total</th>
+                    <th pSortableColumn="estadoPedido.nombre">Estado</th>
+                    <th style="width: 50px"></th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-pedido>
+                <tr>
+                    <td><span class="font-bold text-gray-700">#{{ pedido.idPedido }}</span></td>
+
+                    <td>
+                        <div class="flex flex-col">
+                            <span class="text-sm font-medium text-gray-800">{{ pedido.fecha | date:'dd/MM/yy' }}</span>
+                            <span class="text-xs text-gray-500">{{ pedido.fecha | date:'shortTime' }}</span>
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="flex flex-col">
+                            <span class="font-bold text-cafe-dark">{{ pedido.cliente.nombres }} {{
+                                pedido.cliente.apellidos }}</span>
+                            <span class="text-xs text-gray-500">DNI: {{ pedido.cliente.numeroDocumento }}</span>
+                        </div>
+                    </td>
+
+                    <td>
+                        <p-tag [value]="pedido.tipoPedido.nombre" severity="secondary" styleClass="text-xs"></p-tag>
+                    </td>
+
+                    <td>
+                        <span class="font-serif font-bold text-cafe-primary text-lg">
+                            {{ pedido.total | currency:'PEN':'symbol':'1.2-2' }}
+                        </span>
+                    </td>
+
+                    <td>
+                        <p-tag [value]="pedido.estadoPedido.nombre" [severity]="getSeverity(pedido.estadoPedido.nombre)"
+                            styleClass="text-xs font-bold px-2 uppercase">
+                        </p-tag>
+                    </td>
+
+                    <td class="text-center">
+                        <button pButton type="button" icon="pi pi-ellipsis-v"
+                            class="p-button-text p-button-rounded action-menu-btn"
+                            (click)="toggleMenu(menu, $event, pedido)">
+                        </button>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>
+
+<p-menu #menu [model]="menuItems" [popup]="true" appendTo="body"></p-menu>
+
+<p-dialog [(visible)]="showDetailDialog" [modal]="true" [style]="{width: '100%', maxWidth: '500px'}" [draggable]="false"
+    [resizable]="false" styleClass="custom-modal ticket-dialog" header="Detalle de Comanda">
+
+    <div class="ticket-content" *ngIf="selectedPedido">
+        <div class="bg-gray-50 p-4 rounded-lg mb-4 border border-dashed border-gray-300">
+            <div class="flex justify-between items-start mb-2">
+                <div>
+                    <span class="text-xs text-gray-500 uppercase tracking-widest">Orden #</span>
+                    <h2 class="text-2xl font-bold text-cafe-dark m-0">{{ selectedPedido.idPedido }}</h2>
+                </div>
+                <p-tag [value]="selectedPedido.estado.nombre"
+                    [severity]="getSeverity(selectedPedido.estado.nombre)"></p-tag>
+            </div>
+            <div class="text-sm text-gray-600 flex flex-col gap-1">
+                <span><i class="pi pi-calendar mr-1"></i> {{ selectedPedido.fechaCreacion | date:'medium' }}</span>
+                <span><i class="pi pi-user mr-1"></i> {{ selectedPedido.cliente.nombres }} {{
+                    selectedPedido.cliente.apellidoPaterno }} {{
+                    selectedPedido.cliente.apellidoMaterno }}</span>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <h4 class="text-xs font-bold text-gray-400 uppercase mb-2 px-1">Productos</h4>
+            <div class="divide-y divide-gray-100">
+                <div class="flex justify-between items-center py-2 px-1" *ngFor="let det of selectedPedido.detalles">
+                    <div class="flex items-center gap-3">
+                        <span
+                            class="bg-cafe-primary text-white text-xs font-bold w-6 h-6 rounded flex items-center justify-center">
+                            {{ det.cantidad }}
+                        </span>
+                        <div class="flex flex-col">
+                            <span class="font-medium text-gray-800 text-sm">{{ det.producto.nombre }}</span>
+                            <span class="text-xs text-gray-400">{{ det.precioUnitario | currency:'PEN' }} c/u</span>
+                        </div>
+                    </div>
+                    <span class="font-bold text-gray-700 text-sm">
+                        {{ det.subtotal | currency:'PEN':'symbol':'1.2-2' }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-t-2 border-gray-800 pt-3 mt-2 flex justify-between items-center px-1">
+            <span class="font-bold text-gray-800 text-lg">TOTAL</span>
+            <span class="font-serif font-bold text-cafe-primary text-2xl">
+                {{ selectedPedido.total | currency:'PEN':'symbol':'1.2-2' }}
+            </span>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-center w-full mt-2">
+            <button pButton label="Cerrar" class="p-button-text text-gray-500 w-full"
+                (click)="showDetailDialog = false">
+            </button>
+        </div>
+    </ng-template>
+</p-dialog>

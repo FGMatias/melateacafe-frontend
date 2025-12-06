@@ -85,25 +85,21 @@ export class Carta implements OnInit {
 
   ngOnInit(): void {
     this.loadProductos();
+    this.loadCategorias();
   }
 
   loadProductos(): void {
     this.loading = true;
-
     this.productoService.getAll().subscribe({
-      next: (productos: ProductoResponse[]) => {
-        this.productos = productos;
+      next: (data) => {
+        this.productos = data;
         this.loading = false;
-        console.log('Productos cargados en admin:', this.productos.length);
       },
-      error: (error: any) => {
-        console.error('Error al cargar productos:', error);
+      error: (err) => {
+        console.error('Error cargando productos:', err);
         this.loading = false;
-        Swal.fire('Error', 'No se pudieron cargar los productos', 'error');
       }
     });
-
-    this.loadCategorias();
   }
 
   loadCategorias(): void {
@@ -125,7 +121,7 @@ export class Carta implements OnInit {
   filterByCategoria(): void {
     if (this.table) {
       const valor = this.selectedCategoria ? this.selectedCategoria.nombre : null;
-      this.table.filter(valor, 'categoria.nombre', 'equals');
+      this.table.filter(valor, 'categoriaProducto.nombre', 'equals');
     }
   }
 
