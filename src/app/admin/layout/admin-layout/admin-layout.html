@@ -2,7 +2,7 @@
     <app-sidebar [(collapsed)]="sidebarCollapsed"></app-sidebar>
 
     <div class="main-content" [class.collapsed]="sidebarCollapsed">
-        <app-topbar (toggleSidebar)="onSidebarToggle()"></app-topbar>
+        <app-topbar [collapsed]="sidebarCollapsed" (toggleSidebar)="onSidebarToggle()"></app-topbar>
 
         <main class="content-area">
             <router-outlet></router-outlet>

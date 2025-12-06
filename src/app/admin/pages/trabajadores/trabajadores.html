@@ -1,0 +1,183 @@
+<div class="page-container">
+    <div class="page-header">
+        <div class="header-content">
+            <h1 class="page-title">Trabajadores</h1>
+            <p class="page-subtitle">Gestión de empleados y personal</p>
+        </div>
+        <div class="header-actions">
+            <button pButton label="Nuevo Trabajador" icon="pi pi-plus" class="p-button-rounded"
+                (click)="openCreateDialog()">
+            </button>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <p-table [value]="trabajadores" [loading]="loading" [paginator]="true" [rows]="10"
+            [showCurrentPageReport]="true" responsiveLayout="scroll"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} trabajadores">
+
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="nombres">
+                        Nombre <p-sortIcon field="nombres"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="email">
+                        Email <p-sortIcon field="email"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="telefono">Teléfono</th>
+                    <th pSortableColumn="cargo.nombre">
+                        Cargo <p-sortIcon field="cargo.nombre"></p-sortIcon>
+                    </th>
+                    <th>Usuario</th>
+                    <th>Estado</th>
+                    <th style="width: 200px">Acciones</th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-trabajador>
+                <tr>
+                    <td>
+                        <div class="employee-info">
+                            <p-avatar [label]="getInitials(trabajador)" size="normal" shape="circle"
+                                [style]="{ 'background-color': '#6f4e37', 'color': '#ffffff' }">
+                            </p-avatar>
+                            <div class="employee-details">
+                                <span class="employee-name">{{ getFullName(trabajador) }}</span>
+                                <span class="employee-doc">DNI: {{ trabajador.numeroDocumento }}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>{{ trabajador.email }}</td>
+                    <td>{{ trabajador.telefono }}</td>
+                    <td>
+                        <p-tag [value]="trabajador.cargo.nombre" severity="info"></p-tag>
+                    </td>
+                    <td>
+                        <div class="user-status">
+                            <p-tag *ngIf="trabajador.tieneUsuario" value="Tiene Usuario" severity="success"
+                                icon="pi pi-check">
+                            </p-tag>
+                            <p-tag *ngIf="!trabajador.tieneUsuario" value="Sin Usuario" severity="warn"
+                                icon="pi pi-exclamation-triangle">
+                            </p-tag>
+                        </div>
+                    </td>
+                    <td>
+                        <p-tag [value]="trabajador.estado ? 'Activo' : 'Inactivo'"
+                            [severity]="trabajador.estado ? 'success' : 'danger'">
+                        </p-tag>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button pButton icon="pi pi-eye" class="p-button-rounded p-button-text p-button-info"
+                                pTooltip="Ver detalles" (click)="viewDetails(trabajador)">
+                            </button>
+                            <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-warning"
+                                pTooltip="Editar" (click)="edit(trabajador)">
+                            </button>
+                            <button *ngIf="!trabajador.tieneUsuario" pButton icon="pi pi-user-plus"
+                                class="p-button-rounded p-button-text p-button-success" pTooltip="Crear Usuario"
+                                (click)="createUserForEmployee(trabajador)">
+                            </button>
+                            <button *ngIf="trabajador.tieneUsuario" pButton icon="pi pi-user"
+                                class="p-button-rounded p-button-text p-button-secondary" pTooltip="Ver Usuario"
+                                (click)="viewUser(trabajador)">
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="7" class="text-center">
+                        <div class="empty-state">
+                            <i class="pi pi-users" style="font-size: 3rem; color: #94a3b8;"></i>
+                            <p>No hay trabajadores registrados</p>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>
+
+<p-dialog [(visible)]="showCreateUserDialog" [modal]="true" [style]="{width: '500px'}"
+    header="Crear Usuario para {{ selectedTrabajador?.nombres }}">
+
+    <div class="dialog-content">
+        <div class="employee-summary">
+            <p-avatar [label]="getInitials(selectedTrabajador)" size="large" shape="circle"
+                [style]="{ 'background-color': '#6f4e37', 'color': '#ffffff' }">
+            </p-avatar>
+            <div class="summary-details">
+                <h3>{{ getFullName(selectedTrabajador) }}</h3>
+                <p>{{ selectedTrabajador?.cargo?.nombre }}</p>
+                <p class="text-muted">{{ selectedTrabajador?.email }}</p>
+            </div>
+        </div>
+
+        <form [formGroup]="userForm" class="user-form">
+            <div class="form-field">
+                <label for="username" class="form-label">Usuario *</label>
+                <input pInputText id="username" formControlName="username" placeholder="Ej: mgonzales"
+                    [class.p-invalid]="isFieldInvalid('username')" />
+                <small class="p-error" *ngIf="isFieldInvalid('username')">
+                    El usuario es requerido y debe tener al menos 4 caracteres
+                </small>
+            </div>
+
+            <div class="form-field">
+                <label for="email" class="form-label">Email de Acceso *</label>
+                <input pInputText id="email" formControlName="email" type="email"
+                    placeholder="Ej: matias@melateacafe.com" [class.p-invalid]="isFieldInvalid('email')" />
+                <small class="p-info">
+                    Puede ser diferente al email del trabajador
+                </small>
+                <small class="p-error" *ngIf="isFieldInvalid('email')">
+                    El email es requerido y debe ser válido
+                </small>
+            </div>
+
+            <div class="form-field">
+                <label for="rol" class="form-label">Rol *</label>
+                <p-select id="rol" formControlName="idRol" [options]="roles" optionLabel="nombre" optionValue="idRol"
+                    placeholder="Seleccione un rol" [class.p-invalid]="isFieldInvalid('idRol')">
+                </p-select>
+                <small class="p-error" *ngIf="isFieldInvalid('idRol')">
+                    El rol es requerido
+                </small>
+            </div>
+
+            <div class="form-field">
+                <label for="password" class="form-label">Contraseña *</label>
+                <p-password id="password" formControlName="password" [toggleMask]="true" [feedback]="true"
+                    placeholder="Mínimo 8 caracteres" [class.p-invalid]="isFieldInvalid('password')">
+                </p-password>
+                <small class="p-error" *ngIf="isFieldInvalid('password')">
+                    La contraseña debe tener al menos 8 caracteres
+                </small>
+            </div>
+
+            <div class="form-field">
+                <label for="confirmPassword" class="form-label">Confirmar Contraseña *</label>
+                <p-password id="confirmPassword" formControlName="confirmPassword" [toggleMask]="true"
+                    [feedback]="false" placeholder="Repita la contraseña"
+                    [class.p-invalid]="isFieldInvalid('confirmPassword')">
+                </p-password>
+                <small class="p-error" *ngIf="isFieldInvalid('confirmPassword')">
+                    Las contraseñas no coinciden
+                </small>
+            </div>
+        </form>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <button pButton label="Cancelar" icon="pi pi-times" class="p-button-text"
+            (click)="showCreateUserDialog = false">
+        </button>
+        <button pButton label="Crear Usuario" icon="pi pi-check" class="p-button-success" (click)="submitCreateUser()"
+            [loading]="submitting">
+        </button>
+    </ng-template>
+</p-dialog>

@@ -6,7 +6,7 @@ import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { TooltipModule } from 'primeng/tooltip';
 import Swal from 'sweetalert2';
-import { Usuario } from '../../../core/models/usuario';
+import { Usuario, getIniciales, getNombreCompleto, getRolNombre } from '../../../core/models/usuario';
 import { AuthService } from '../../../core/services/auth';
 
 interface MenuItem {
@@ -55,6 +55,12 @@ export class Sidebar implements OnInit {
         route: '/admin/dashboard'
       },
       {
+        label: 'Trabajadores',
+        icon: 'pi pi-id-card',
+        route: '/admin/trabajadores',
+        roles: ['Administrador']
+      },
+      {
         label: 'Usuarios',
         icon: 'pi pi-users',
         route: '/admin/usuarios',
@@ -99,6 +105,14 @@ export class Sidebar implements OnInit {
     this.collapsedChange.emit(this.collapsed);
   }
 
+  navigateTo(route: string): void {
+    this.router.navigate([route]);
+  }
+
+  isActiveRoute(route: string): boolean {
+    return this.router.url === route;
+  }
+
   navigateToProfile(): void {
     this.router.navigate(['/admin/perfil']);
   }
@@ -130,17 +144,15 @@ export class Sidebar implements OnInit {
   getInitials(): string {
     if (!this.currentUser) return 'U';
 
-    const nombre = this.currentUser.nombre?.charAt(0) || '';
-    const apellido = this.currentUser.apellidoPaterno?.charAt(0) || '';
-    return (nombre + apellido).toUpperCase();
+    return getIniciales(this.currentUser);
   }
 
   getFullName(): string {
     if (!this.currentUser) return 'Usuario';
-    return `${this.currentUser.nombre} ${this.currentUser.apellidoPaterno}`;
+    return getNombreCompleto(this.currentUser);
   }
 
   getRoleName(): string {
-    return this.currentUser?.rol?.nombre || 'Sin Rol';
+    return getRolNombre(this.currentUser!);
   }
 }

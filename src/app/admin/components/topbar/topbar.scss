@@ -12,10 +12,12 @@
     padding: 0 2rem;
     z-index: 999;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    width: calc(100% - 280px);
 
     &.collapsed {
         left: 80px;
+        width: calc(100% - 80px);
     }
 }
 
@@ -27,9 +29,16 @@
 
 .menu-toggle {
     color: var(--cafe-dark) !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0.5rem !important;
 
     &:hover {
         background: rgba(111, 78, 55, 0.1) !important;
+    }
+
+    &:focus {
+        box-shadow: none !important;
     }
 }
 
@@ -49,34 +58,6 @@
     gap: 1rem;
 }
 
-.notification-button {
-    color: var(--cafe-dark) !important;
-    position: relative;
-
-    &:hover {
-        background: rgba(111, 78, 55, 0.1) !important;
-    }
-}
-
-::ng-deep {
-    .notification-badge {
-        background: #dc3545 !important;
-        color: #ffffff !important;
-        font-size: 0.75rem !important;
-        min-width: 1.25rem !important;
-        height: 1.25rem !important;
-        line-height: 1.25rem !important;
-        border-radius: 0.625rem !important;
-    }
-
-    .avatar-small {
-        width: 40px !important;
-        height: 40px !important;
-        font-size: 1rem !important;
-        font-weight: 600 !important;
-    }
-}
-
 .user-menu {
     position: relative;
 }
@@ -88,9 +69,16 @@
     padding: 0.5rem 1rem !important;
     color: var(--cafe-dark) !important;
     border-radius: 8px !important;
+    background: transparent !important;
+    border: none !important;
+    transition: all 0.2s ease;
 
     &:hover {
-        background: rgba(111, 78, 55, 0.1) !important;
+        background: rgba(111, 78, 55, 0.08) !important;
+    }
+
+    &:focus {
+        box-shadow: none !important;
     }
 
     .user-name {
@@ -104,32 +92,56 @@
 }
 
 ::ng-deep {
+    .avatar-small {
+        width: 40px !important;
+        height: 40px !important;
+        font-size: 1rem !important;
+        font-weight: 600 !important;
+    }
+
     .p-menu {
         border: 1px solid #e5e7eb;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        min-width: 200px;
+        border-radius: 12px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+        min-width: 220px;
+        padding: 0.5rem 0;
+        margin-top: 0.5rem;
 
-        .p-menuitem-link {
-            padding: 0.75rem 1rem;
+        .p-menuitem {
+            margin: 0;
 
-            &:hover {
-                background: rgba(111, 78, 55, 0.1);
-            }
+            .p-menuitem-link {
+                padding: 0.875rem 1.25rem;
+                border-radius: 0;
+                transition: all 0.2s ease;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
 
-            .p-menuitem-icon {
-                color: var(--cafe-dark);
-            }
+                &:hover {
+                    background: rgba(111, 78, 55, 0.08);
+                }
 
-            .p-menuitem-text {
-                color: #374151;
-                font-weight: 500;
+                &:focus {
+                    box-shadow: none;
+                }
+
+                .p-menuitem-icon {
+                    color: var(--cafe-dark);
+                    font-size: 1.125rem;
+                }
+
+                .p-menuitem-text {
+                    color: #374151;
+                    font-weight: 500;
+                    font-size: 0.9375rem;
+                }
             }
         }
 
         .p-menu-separator {
-            margin: 0.25rem 0;
-            border-top-color: #e5e7eb;
+            margin: 0.5rem 0;
+            border-top: 1px solid #e5e7eb;
         }
     }
 }

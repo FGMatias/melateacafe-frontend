@@ -23,7 +23,7 @@ export class Login implements OnInit {
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     if (this.authService.isAuthenticated()) {
@@ -89,7 +89,7 @@ export class Login implements OnInit {
         Swal.fire({
           icon: 'success',
           title: '¡Bienvenido!',
-          text: `Hola ${response.usuario.nombre}`,
+          text: `Hola ${response.usuario.trabajador?.nombres}`,
           timer: 1500,
           showConfirmButton: false
         });
@@ -105,7 +105,7 @@ export class Login implements OnInit {
         this.loading = false;
 
         let mensajeError = 'Ha ocurrido un error al iniciar sesión';
-        
+
         if (error?.message) {
           if (error.message.includes('Usuario no encontrado')) {
             mensajeError = 'El usuario no existe';
@@ -113,7 +113,7 @@ export class Login implements OnInit {
             mensajeError = 'Tu cuenta está desactivada. Contacta al administrador';
           }
         }
-        
+
         if (error?.status === 401) {
           mensajeError = 'Usuario o contraseña incorrectos';
         } else if (error?.status === 404) {

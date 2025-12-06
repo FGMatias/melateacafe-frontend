@@ -8,7 +8,7 @@ import { ButtonModule } from 'primeng/button';
 import { MenuModule } from 'primeng/menu';
 import { RippleModule } from 'primeng/ripple';
 import Swal from 'sweetalert2';
-import { Usuario } from '../../../core/models/usuario';
+import { getIniciales, getNombreCompleto, getRolNombre, Usuario } from '../../../core/models/usuario';
 import { AuthService } from '../../../core/services/auth';
 
 @Component({
@@ -22,7 +22,46 @@ import { AuthService } from '../../../core/services/auth';
     MenuModule,
     RippleModule
   ],
-  templateUrl: './topbar.html',
+  // templateUrl: './topbar.html',
+  template: `
+    <header class="topbar" [class.collapsed]="collapsed">
+      <div class="topbar-left">
+        <button
+          pButton
+          pRipple
+          icon="pi pi-bars"
+          class="p-button-text p-button-rounded menu-toggle"
+          (click)="onToggleSidebar()"
+        ></button>
+
+        <div class="page-title">
+          <h2>Panel de Administración</h2>
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <div class="user-menu">
+          <button
+            pButton
+            pRipple
+            class="p-button-text user-button"
+            (click)="menu.toggle($event)"
+          >
+            <p-avatar
+              [label]="getInitials()"
+              styleClass="avatar-small"
+              shape="circle"
+              [style]="{ 'background-color': '#6f4e37', 'color': '#ffffff' }"
+            ></p-avatar>
+            <span class="user-name">{{ getFullName() }}</span>
+            <i class="pi pi-angle-down"></i>
+          </button>
+
+          <p-menu #menu [model]="userMenuItems" [popup]="true" appendTo="body"></p-menu>
+        </div>
+      </div>
+    </header>
+  `,
   styleUrl: './topbar.scss',
 })
 export class Topbar implements OnInit {
@@ -104,13 +143,15 @@ export class Topbar implements OnInit {
   getInitials(): string {
     if (!this.currentUser) return 'U';
 
-    const nombre = this.currentUser.nombre?.charAt(0) || '';
-    const apellido = this.currentUser.apellidoPaterno?.charAt(0) || '';
-    return (nombre + apellido).toUpperCase();
+    return getIniciales(this.currentUser);
   }
 
   getFullName(): string {
     if (!this.currentUser) return 'Usuario';
-    return `${this.currentUser.nombre} ${this.currentUser.apellidoPaterno}`;
+    return getNombreCompleto(this.currentUser);
+  }
+
+  getRoleName(): string {
+    return getRolNombre(this.currentUser!);
   }
 }

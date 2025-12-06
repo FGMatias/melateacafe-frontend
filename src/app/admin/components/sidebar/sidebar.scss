@@ -27,15 +27,24 @@
         .user-profile {
             flex-direction: column;
             gap: 0.5rem;
+            padding: 1rem 0.5rem;
         }
 
         .profile-content {
             flex-direction: column;
             gap: 0.5rem;
+            width: 100%;
         }
 
         .profile-button {
-            margin-top: 0.5rem;
+            margin-top: 0;
+            width: 100%;
+        }
+
+        .sidebar-footer {
+            .logout-button span {
+                display: none;
+            }
         }
     }
 }
@@ -120,9 +129,23 @@
 .profile-button {
     color: #ffffff !important;
     flex-shrink: 0;
+    background: transparent !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    padding: 0.5rem !important;
+    border-radius: 8px !important;
+    transition: all 0.2s ease;
 
     &:hover {
         background: rgba(255, 255, 255, 0.1) !important;
+        border-color: rgba(255, 255, 255, 0.3) !important;
+    }
+
+    &:focus {
+        box-shadow: none !important;
+    }
+
+    .pi {
+        font-size: 1rem;
     }
 }
 
@@ -174,6 +197,7 @@
     border-radius: 8px;
     transition: all 0.2s ease;
     position: relative;
+    cursor: pointer;
     overflow: hidden;
 
     &:hover {
@@ -229,23 +253,57 @@
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.75rem;
 }
 
-.toggle-button,
-.logout-button {
+.toggle-button {
     width: 100%;
-    justify-content: flex-start;
+    justify-content: center;
     color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    padding: 0.75rem !important;
+    border-radius: 8px !important;
+    transition: all 0.2s ease;
 
     &:hover {
         background: rgba(255, 255, 255, 0.1) !important;
+        border-color: rgba(255, 255, 255, 0.2) !important;
+    }
+
+    &:focus {
+        box-shadow: none !important;
     }
 }
 
 .logout-button {
+    width: 100%;
+    justify-content: center;
+    color: #ffffff !important;
+    background: transparent !important;
+    border: 1px solid rgba(220, 53, 69, 0.3) !important;
+    padding: 0.75rem !important;
+    border-radius: 8px !important;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
     &:hover {
-        background: rgba(220, 53, 69, 0.2) !important;
+        background: rgba(220, 53, 69, 0.15) !important;
+        border-color: rgba(220, 53, 69, 0.5) !important;
+    }
+
+    &:focus {
+        box-shadow: none !important;
+    }
+
+    .pi {
+        font-size: 1rem;
+    }
+
+    span {
+        font-weight: 500;
     }
 }
 
@@ -255,10 +313,22 @@
             background: #3e2723;
             color: #ffffff;
             font-size: 0.875rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
         }
 
         .p-tooltip-arrow {
             border-right-color: #3e2723;
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+
+        &.open {
+            transform: translateX(0);
         }
     }
 }

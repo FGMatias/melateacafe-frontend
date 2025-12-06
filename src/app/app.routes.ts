@@ -40,6 +40,10 @@ export const routes: Routes = [
                 loadComponent: () => import('./admin/pages/dashboard/dashboard').then(m => m.Dashboard)
             },
             {
+                path: 'trabajadores',
+                loadComponent: () => import('./admin/pages/trabajadores/trabajadores').then(m => m.Trabajadores)
+            },
+            {
                 path: 'usuarios',
                 loadComponent: () => import('./admin/pages/usuarios/usuarios').then(m => m.Usuarios)
             },
