@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { MenuItem } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
+import { DatePickerModule } from 'primeng/datepicker';
 import { DialogModule } from 'primeng/dialog';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
@@ -13,10 +14,13 @@ import { PasswordModule } from 'primeng/password';
 import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
+import { TextareaModule } from 'primeng/textarea';
 import { TooltipModule } from 'primeng/tooltip';
 import Swal from 'sweetalert2';
+import { Cargo } from '../../../core/models/cargo';
 import { Rol } from '../../../core/models/rol';
 import { Trabajador } from '../../../core/models/trabajador';
+import { CargoService } from '../../../core/services/cargo';
 import { RolService } from '../../../core/services/rol';
 import { TrabajadorService } from '../../../core/services/trabajador';
 import { UsuarioService } from '../../../core/services/usuario';
@@ -44,7 +48,9 @@ interface SelectOption {
     TooltipModule,
     MenuModule,
     IconFieldModule,
-    InputIconModule
+    InputIconModule,
+    DatePickerModule,
+    TextareaModule
   ],
   templateUrl: './trabajadores.html',
   styleUrl: './trabajadores.scss',
@@ -60,13 +66,16 @@ export class Trabajadores implements OnInit {
   userForm: FormGroup;
   menuItems: MenuItem[] = [];
   @ViewChild('actionMenu') actionMenu!: Menu;
-
+  trabajadorForm: FormGroup;
+  showTrabajadorDialog: boolean = false;
+  modalMode: 'create' | 'edit' | 'view' = 'create';
+  cargos: Cargo[] = [];
+  currentTrabajadorId: number | null = null;
+  selectedCargo: Cargo | null = null;
   searchTerm: string = '';
-  selectedCargo: string = '';
   selectedEstado: string = '';
   selectedUsuario: string = '';
 
-  cargoOptions: SelectOption[] = [];
   estadoOptions: SelectOption[] = [
     { label: 'Todos', value: '' },
     { label: 'Activos', value: 'true' },
@@ -82,6 +91,7 @@ export class Trabajadores implements OnInit {
     private trabajadorService: TrabajadorService,
     private usuarioService: UsuarioService,
     private rolService: RolService,
+    private cargoService: CargoService,
     private fb: FormBuilder
   ) {
     this.userForm = this.fb.group({
@@ -93,11 +103,41 @@ export class Trabajadores implements OnInit {
     }, {
       validators: this.passwordMatchValidator
     });
+
+    this.trabajadorForm = this.fb.group({
+      nombres: ['', [Validators.required, Validators.minLength(2)]],
+      apellidoPaterno: ['', [Validators.required, Validators.minLength(2)]],
+      apellidoMaterno: [''],
+      email: ['', [Validators.required, Validators.email]],
+      telefono: ['', [Validators.required, Validators.pattern(/^[0-9]{9}$/)]],
+      numeroDocumento: ['', [Validators.required, Validators.minLength(8)]],
+      idCargo: [null, [Validators.required]],
+      fechaContratacion: [new Date(), [Validators.required]],
+      estado: [true]
+    });
   }
 
   ngOnInit(): void {
     this.loadTrabajadores();
     this.loadRoles();
+  }
+
+  loadCargos(): void {
+    this.cargoService.getAll().subscribe(data => this.cargos = data);
+  }
+
+  private patchForm(trabajador: Trabajador): void {
+    this.trabajadorForm.patchValue({
+      nombres: trabajador.nombres,
+      apellidoPaterno: trabajador.apellidoPaterno,
+      apellidoMaterno: trabajador.apellidoMaterno,
+      email: trabajador.email,
+      telefono: trabajador.telefono,
+      numeroDocumento: trabajador.numeroDocumento,
+      idCargo: trabajador.cargo.idCargo,
+      fechaContratacion: new Date(trabajador.fechaContratacion),
+      estado: trabajador.estado
+    });
   }
 
   toggleMenu(menu: Menu, event: any, trabajador: Trabajador) {
@@ -110,12 +150,12 @@ export class Trabajadores implements OnInit {
           {
             label: 'Ver Detalles',
             icon: 'pi pi-eye',
-            command: () => this.viewDetails(trabajador)
+            command: () => this.openViewDialog(trabajador)
           },
           {
             label: 'Editar Información',
             icon: 'pi pi-pencil',
-            command: () => this.edit(trabajador)
+            command: () => this.openEditDialog(trabajador)
           }
         ]
       },
@@ -167,7 +207,7 @@ export class Trabajadores implements OnInit {
         this.trabajadores = data;
         this.filteredTrabajadores = data;
         this.loading = false;
-        this.buildCargoOptions();
+        this.cargos;
       },
       error: (error) => {
         console.error('Error cargando trabajadores:', error);
@@ -197,14 +237,6 @@ export class Trabajadores implements OnInit {
     });
   }
 
-  buildCargoOptions(): void {
-    const cargos = [...new Set(this.trabajadores.map(t => t.cargo.nombre))];
-    this.cargoOptions = [
-      { label: 'Todos los cargos', value: '' },
-      ...cargos.map(cargo => ({ label: cargo, value: cargo }))
-    ];
-  }
-
   onSearch(): void {
     this.applyFilters();
   }
@@ -226,8 +258,8 @@ export class Trabajadores implements OnInit {
       );
     }
 
-    if (this.selectedCargo) {
-      filtered = filtered.filter(t => t.cargo.nombre === this.selectedCargo);
+    if (this.cargos) {
+      filtered = filtered.filter(t => t.cargo.nombre === this.selectedCargo?.nombre);
     }
 
     if (this.selectedEstado !== '') {
@@ -245,7 +277,6 @@ export class Trabajadores implements OnInit {
 
   clearFilters(): void {
     this.searchTerm = '';
-    this.selectedCargo = '';
     this.selectedEstado = '';
     this.selectedUsuario = '';
     this.filteredTrabajadores = [...this.trabajadores];
@@ -259,39 +290,59 @@ export class Trabajadores implements OnInit {
     return `${trabajador.nombres.charAt(0)}${trabajador.apellidoPaterno.charAt(0)}`;
   }
 
-  viewDetails(trabajador: Trabajador): void {
-    Swal.fire({
-      title: this.getFullName(trabajador),
-      html: `
-        <div style="text-align: left; padding: 1rem;">
-          <p><strong>DNI:</strong> ${trabajador.numeroDocumento}</p>
-          <p><strong>Email:</strong> ${trabajador.email}</p>
-          <p><strong>Teléfono:</strong> ${trabajador.telefono}</p>
-          <p><strong>Cargo:</strong> ${trabajador.cargo.nombre}</p>
-          <p><strong>Estado:</strong> ${trabajador.estado ? 'Activo' : 'Inactivo'}</p>
-          <p><strong>Usuario:</strong> ${trabajador.tieneUsuario ? 'Sí' : 'No'}</p>
-        </div>
-      `,
-      icon: 'info',
-      confirmButtonColor: '#6f4e37'
-    });
-  }
-
-  edit(trabajador: Trabajador): void {
-    Swal.fire({
-      title: 'Función en desarrollo',
-      text: 'La edición de trabajadores estará disponible próximamente',
-      icon: 'info',
-      confirmButtonColor: '#6f4e37'
-    });
-  }
-
   openCreateDialog(): void {
-    Swal.fire({
-      title: 'Función en desarrollo',
-      text: 'La creación de trabajadores estará disponible próximamente',
-      icon: 'info',
-      confirmButtonColor: '#6f4e37'
+    this.modalMode = 'create';
+    this.currentTrabajadorId = null;
+    this.trabajadorForm.reset({ fechaContratacion: new Date(), estado: true });
+    this.trabajadorForm.enable();
+    this.showTrabajadorDialog = true;
+  }
+
+  openEditDialog(trabajador: Trabajador): void {
+    this.modalMode = 'edit';
+    this.currentTrabajadorId = trabajador.idTrabajador;
+    this.trabajadorForm.enable();
+    this.patchForm(trabajador);
+    this.showTrabajadorDialog = true;
+  }
+
+  openViewDialog(trabajador: Trabajador): void {
+    this.modalMode = 'view';
+    this.patchForm(trabajador);
+    this.trabajadorForm.disable();
+    this.showTrabajadorDialog = true;
+  }
+
+  saveTrabajador(): void {
+    if (this.trabajadorForm.invalid) {
+      this.trabajadorForm.markAllAsTouched();
+      return;
+    }
+
+    this.submitting = true;
+    const formValue = this.trabajadorForm.getRawValue();
+
+    const trabajadorDTO = {
+      ...formValue,
+      fechaContratacion: formValue.fechaContratacion.toISOString().split('T')[0]
+    };
+
+    const request$ = this.modalMode === 'create'
+      ? this.trabajadorService.create(trabajadorDTO)
+      : this.trabajadorService.update(this.currentTrabajadorId!, trabajadorDTO);
+
+    request$.subscribe({
+      next: () => {
+        this.submitting = false;
+        this.showTrabajadorDialog = false;
+        this.loadTrabajadores();
+        Swal.fire('Éxito', `Trabajador ${this.modalMode === 'create' ? 'creado' : 'actualizado'} correctamente`, 'success');
+      },
+      error: (err) => {
+        this.submitting = false;
+        console.error(err);
+        Swal.fire('Error', 'No se pudo guardar el trabajador', 'error');
+      }
     });
   }
 

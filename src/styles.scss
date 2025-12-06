@@ -2,10 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Leaflet CSS */
 @import 'leaflet/dist/leaflet.css';
 
-/* Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Mona+Sans:ital,wght@0,200..900;1,200..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Mona+Sans:ital,wght@0,200..900;1,200..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
 
@@ -42,16 +40,48 @@ h6 {
   --beige-light: #f5e6d3;
   --beige-cream: #fff8e7;
   --gray-light: #E2D9C8;
+
+  --p-primary-color: #6f4e37;
+  --p-primary-hover-color: #8b4513;
+  --p-primary-active-color: #3e2723;
+
+  --p-primary-contrast-color: #ffffff;
+
+  --p-highlight-background: #f5e6d3;
+  --p-highlight-color: #3e2723;
+  --p-highlight-focus-background: #e2d9c8;
+
+  --p-focus-ring-color: #6f4e37;
+  --p-focus-ring-shadow: 0 0 0 0.2rem rgba(111, 78, 55, 0.2);
 }
 
-/* Personalización de botones de PrimeNG con el nuevo sistema de temas */
-.p-button {
+.p-button:not(.p-button-outlined):not(.p-button-text):not(.p-button-secondary):not(.p-button-link):not(.p-dialog-header-icon) {
   background-color: var(--cafe-primary) !important;
   border-color: var(--cafe-primary) !important;
+  color: #ffffff !important;
 
   &:hover {
     background-color: var(--cafe-dark) !important;
     border-color: var(--cafe-dark) !important;
+  }
+}
+
+.p-dialog-header-icon {
+  background: transparent !important;
+  border: none !important;
+  color: #9ca3af !important;
+  width: 2rem !important;
+  height: 2rem !important;
+  border-radius: 50% !important;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #f3f4f6 !important;
+    color: var(--cafe-dark) !important;
+  }
+
+  .p-icon {
+    color: inherit !important;
   }
 }
 
