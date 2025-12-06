@@ -1,0 +1,193 @@
+$cafe-primary: #6f4e37;
+$cafe-dark: #3e2723;
+$bg-light: #ffffff;
+$border-color: #e5e7eb;
+$gray-light: #f3f4f6;
+
+.page-container {
+    padding: 0;
+}
+
+.filters-container {
+    background: $bg-light;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid $border-color;
+
+    .search-input {
+        border-radius: 8px;
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+        font-size: 0.95rem;
+
+        &:focus {
+            border-color: $cafe-primary;
+            box-shadow: 0 0 0 1px $cafe-primary;
+        }
+    }
+
+    .custom-clear-btn {
+        background-color: $cafe-primary !important;
+        border-color: $cafe-primary !important;
+        color: #ffffff !important;
+        font-weight: 500;
+
+        .p-button-icon {
+            color: #ffffff !important;
+        }
+
+        &:hover {
+            background-color: $cafe-dark !important;
+            border-color: $cafe-dark !important;
+        }
+    }
+}
+
+::ng-deep .p-datatable {
+    .p-datatable-header {
+        background: transparent;
+        border: none;
+    }
+
+    .p-datatable-thead>tr>th {
+        background: #fcfbf9;
+        color: $cafe-dark;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid rgba($cafe-primary, 0.1);
+        padding: 1rem;
+    }
+
+    .p-datatable-tbody>tr {
+        background: $bg-light;
+        transition: background-color 0.2s;
+
+        >td {
+            padding: 1rem;
+            border-bottom: 1px solid #f1f5f9;
+            color: #374151;
+            font-size: 0.95rem;
+            vertical-align: middle;
+        }
+
+        &:hover {
+            background-color: #faf9f8 !important;
+        }
+    }
+}
+
+.employee-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    .employee-details {
+        display: flex;
+        flex-direction: column;
+
+        .employee-name {
+            font-weight: 600;
+            color: $cafe-dark;
+        }
+    }
+}
+
+.action-menu-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    background-color: $gray-light !important;
+    border: 1px solid transparent !important;
+    color: #6b7280 !important;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background-color: #e5e7eb !important;
+        color: $cafe-primary !important;
+        transform: scale(1.05);
+    }
+
+    &:focus {
+        box-shadow: 0 0 0 2px rgba($cafe-primary, 0.2);
+    }
+}
+
+::ng-deep .p-menu {
+    border-radius: 12px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    border: 1px solid $border-color;
+    padding: 0.5rem;
+    width: 220px;
+
+    .p-menuitem-content {
+        margin-bottom: 2px;
+    }
+
+    .p-menuitem-link {
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        transition: all 0.2s;
+
+        .p-menuitem-text {
+            color: #4b5563;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .p-menuitem-icon {
+            color: #9ca3af;
+            font-size: 1rem;
+            margin-right: 0.75rem;
+        }
+
+        &:hover {
+            background-color: #f9fafb;
+
+            .p-menuitem-text {
+                color: $cafe-primary;
+            }
+
+            .p-menuitem-icon {
+                color: $cafe-primary;
+            }
+        }
+    }
+
+    .menu-delete-item {
+        .p-menuitem-link {
+            &:hover {
+                background-color: #fee2e2;
+
+                .p-menuitem-text,
+                .p-menuitem-icon {
+                    color: #dc2626;
+                }
+            }
+
+            .p-menuitem-text {
+                color: #dc2626;
+            }
+
+            .p-menuitem-icon {
+                color: #dc2626;
+            }
+        }
+    }
+
+    .p-submenu-header {
+        background: transparent;
+        color: #9ca3af;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 0.75rem 1rem 0.5rem;
+    }
+
+    .p-menu-separator {
+        border-top: 1px solid #f3f4f6;
+        margin: 0.5rem 0;
+    }
+}

@@ -20,7 +20,7 @@ bootstrapApplication(App, {
         preset: Aura,
         options: {
           prefix: 'p',
-          darkModeSelector: 'system',
+          darkModeSelector: '.app-dark-mode',
           cssLayer: false
         }
       }
