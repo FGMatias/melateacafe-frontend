@@ -64,6 +64,8 @@ export class Menu implements OnInit {
       next: (productos: ProductoResponse[]) => {
         this.productos = productos;
         this.loadingProductos = false;
+        console.log('Productos cargados:', this.productos.length);
+        this.aplicarFiltros();
       },
       error: (error: any) => {
         console.error('Error al cargar productos:', error);

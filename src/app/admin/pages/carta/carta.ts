@@ -90,33 +90,31 @@ export class Carta implements OnInit {
   loadProductos(): void {
     this.loading = true;
 
-    this.productoService.getActivos().subscribe({
+    this.productoService.getAll().subscribe({
       next: (productos: ProductoResponse[]) => {
         this.productos = productos;
         this.loading = false;
+        console.log('Productos cargados en admin:', this.productos.length);
       },
       error: (error: any) => {
         console.error('Error al cargar productos:', error);
         this.loading = false;
+        Swal.fire('Error', 'No se pudieron cargar los productos', 'error');
       }
     });
+
+    this.loadCategorias();
   }
 
-  loadData(): void {
-    this.loading = true;
-
-    this.productoService.getAll().subscribe({
+  loadCategorias(): void {
+    this.categoriaService.getAll().subscribe({
       next: (data) => {
-        this.productos = data;
-        this.loading = false;
+        this.categorias = data;
       },
       error: (err) => {
-        console.error(err);
-        this.loading = false;
+        console.error('Error al cargar categorías:', err);
       }
     });
-
-    this.categoriaService.getAll().subscribe(data => this.categorias = data);
   }
 
   onGlobalFilter(event: Event): void {
@@ -206,7 +204,7 @@ export class Carta implements OnInit {
   private handleSuccess(message: string): void {
     this.submitting = false;
     this.showDialog = false;
-    this.loadData();
+    this.loadProductos();
     Swal.fire('Éxito', message, 'success');
   }
 
@@ -231,7 +229,7 @@ export class Carta implements OnInit {
         this.productoService.delete(producto.idProducto).subscribe({
           next: () => {
             Swal.fire('Eliminado', 'Producto eliminado correctamente', 'success');
-            this.loadData();
+            this.loadProductos();
           },
           error: () => Swal.fire('Error', 'No se pudo eliminar (verifique ventas asociadas)', 'error')
         });

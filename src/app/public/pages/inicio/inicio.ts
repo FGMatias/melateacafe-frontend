@@ -76,30 +76,19 @@ export class Inicio implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit(): void {
+    this.loadingProductos = true;
     this.productoService.getDestacados().subscribe({
       next: (productos: ProductoResponse[]) => {
         this.productosDestacados = productos.filter((p: ProductoResponse) => p.estado);
+        this.loadingProductos = false;
+        console.log('Productos destacados cargados:', this.productosDestacados.length);
       },
       error: (error: any) => {
         console.error('Error cargando destacados', error);
+        this.loadingProductos = false;
       }
     });
   }
-
-  // cargarProductosDestacados(): void {
-  //   this.loadingProductos = true;
-  //   this.productoService.getProductosDestacados().subscribe({
-  //     next: (productos) => {
-  //       this.productosDestacados = productos.filter(p => p.estado);
-  //       this.loadingProductos = false;
-  //       console.log('Productos destacados cargados: ', this.productosDestacados);
-  //     },
-  //     error: (error) => {
-  //       console.log('Error al cargar los productos: ', error);
-  //       this.loadingProductos = false;
-  //     }
-  //   })
-  // }
 
   agregarAlCarrito(producto: Producto): void {
     this.carritoService.agregarProducto(producto, 1);
